@@ -7,6 +7,9 @@ include("math.jl")
 include("laplace.jl")
 include("yukawa.jl")
 
-greet() = print("Hello World!")
+using NESSie
+using NESSie: unpack, yukawa
+
+include("solver.jl")
 
 end # module

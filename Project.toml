@@ -1,0 +1,8 @@
+name = "CuNESSie"
+uuid = "0d043cba-454f-40cc-8503-cb153d0e1409"
+authors = ["Thomas Kemmer <thomas@binaryden.de>"]
+desc = "CUDA-accelerated Nonlocal Electrostatics in Structured Solvents"
+version = "0.1.0"
+
+[compat]
+julia = "1"

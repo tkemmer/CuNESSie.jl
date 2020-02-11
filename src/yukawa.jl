@@ -158,7 +158,7 @@ function regularyukawapot_double(
         (155 + s15)/2400,
         val
     )
-    ref = _refside(Ξ, elements, ξidx, eidx, (6+s15)/21, (9-2*s15)/21)
+    ref = _refside(Ξ, elements, ξidx, eidx, (9-2*s15)/21, (6+s15)/21)
     val = CUDAnative.fma(
         pot(
             _norm(ref...),

@@ -1,0 +1,11 @@
+.DS_Store
+*.swp
+*.log
+*.o
+/Manifest.toml
+/data/
+/doc/build
+/tools/mesher/mesher
+/tools/mesher/sphere
+/work/
+

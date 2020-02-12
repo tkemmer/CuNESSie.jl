@@ -1,7 +1,3 @@
-@inline function _elem2cuarray(elem::Triangle{T}) where T
-    CuArray([elem.v1; elem.v2; elem.v3; elem.normal; elem.distorig])
-end
-
 function _laplace_single_kernel!(
     dst     ::CuDeviceVector{T},
     Ξ       ::CuDeviceVector{T},
@@ -31,7 +27,7 @@ end
 @testset "[sl] ξ is vertex" begin
     for T in [Float32, Float64]
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
-        elements = _elem2cuarray(elem)
+        elements = _elem2cuarr(elem)
         Ξ = CuArray([elem.v1; elem.v2; elem.v3])
         dst = CuArray{T}(undef, length(Ξ))
 
@@ -46,7 +42,7 @@ end
 @testset "[sl] ξ in plane" begin
     for T in [Float32, Float64]
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
-        elements = _elem2cuarray(elem)
+        elements = _elem2cuarr(elem)
         Ξ = CuArray(T[0, -1, 0, 0, -1, -1])
         dst = CuArray{T}(undef, length(Ξ))
 
@@ -60,7 +56,7 @@ end
 @testset "[sl] ξ on normal through vertex" begin
     for T in [Float32, Float64]
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
-        elements = _elem2cuarray(elem)
+        elements = _elem2cuarr(elem)
         Ξ = CuArray(T[1, 0, 0, 1, 1, 0, 1, 0, 1])
         dst = CuArray{T}(undef, length(Ξ))
 
@@ -75,7 +71,7 @@ end
 @testset "[sl] ξ somewhere in space" begin
     for T in [Float32, Float64]
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
-        elements = _elem2cuarray(elem)
+        elements = _elem2cuarr(elem)
         Ξ = CuArray(T[1, -1, 0, 1, -1, -1])
         dst = CuArray{T}(undef, length(Ξ))
 
@@ -89,7 +85,7 @@ end
 @testset "[dl] ξ is vertex" begin
     for T in [Float32, Float64]
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
-        elements = _elem2cuarray(elem)
+        elements = _elem2cuarr(elem)
         Ξ = CuArray([elem.v1; elem.v2; elem.v3])
         dst = CuArray{T}(undef, length(Ξ))
 
@@ -104,7 +100,7 @@ end
 @testset "[dl] ξ in plane" begin
     for T in [Float32, Float64]
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
-        elements = _elem2cuarray(elem)
+        elements = _elem2cuarr(elem)
         Ξ = CuArray(T[0, -1, 0, 0, -1, -1])
         dst = CuArray{T}(undef, length(Ξ))
 

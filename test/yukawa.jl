@@ -21,13 +21,11 @@ end
 
 @testset "2D projection" begin
     for T in [Float32, Float64]
-        elements = CuArray(
-            NESSie.unpack([[e.v1; e.v2; e.v3; e.normal; e.distorig; e.area] for e in [
-                Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1]),
-                Triangle(T[0, 0, 0], T[0, 2, 0], T[0, 0, 2]),
-                Triangle(T[1, 0, 0], T[1, 2, 0], T[1, 0, 2])
-            ]
-        ]))
+        elements = _elem2cuarr(
+            Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1]),
+            Triangle(T[0, 0, 0], T[0, 2, 0], T[0, 0, 2]),
+            Triangle(T[1, 0, 0], T[1, 2, 0], T[1, 0, 2])
+        )
         refs = CuArray(T[0, 0, 0, .5, .5, 0, .5, .5, 0, 1, 1, 0])
         dst = CuArray{T}(undef, 3 * 6)
 

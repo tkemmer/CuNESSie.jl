@@ -111,5 +111,31 @@ end
     end
 end
 
-@test_skip dl_ξ_on_normal_through_vertex
-@test_skip dl_ξ_somewhere_in_space
+@testset "[dl] ξ on normal through vertex" begin
+    for T in [Float32, Float64]
+        elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
+        elements = _elem2cuarr(elem)
+        Ξ = CuArray(T[1, 0, 0, 1, 1, 0, 1, 0, 1])
+        dst = CuArray{T}(undef, 3)
+
+        @cuda _laplace_double_kernel!(dst, Ξ, elements, 3, 1)
+        res = Array(dst)
+        @test res[1] ≈ Rjasanow.laplacepot(DoubleLayer, elem.v1, elem, one(T))
+        @test res[2] ≈ Rjasanow.laplacepot(DoubleLayer, elem.v2, elem, one(T))
+        @test res[3] ≈ Rjasanow.laplacepot(DoubleLayer, elem.v3, elem, one(T))
+    end
+end
+
+@testset "[dl] ξ somewhere in space" begin
+    for T in [Float32, Float64]
+        elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
+        elements = _elem2cuarr(elem)
+        Ξ = CuArray(T[1, -1, 0, 1, -1, -1])
+        dst = CuArray{T}(undef, 2)
+
+        @cuda _laplace_double_kernel!(dst, Ξ, elements, 2, 1)
+        res = Array(dst)
+        @test res[1] ≈ Rjasanow.laplacepot(DoubleLayer, T[0, -1, 0], elem, one(T))
+        @test res[2] ≈ Rjasanow.laplacepot(DoubleLayer, T[0, -1, -1], elem, one(T))
+    end
+end

@@ -19,7 +19,7 @@ end
 end
 
 @inline function _cross(x1::T, y1::T, z1::T, x2::T, y2::T, z2::T) where T
-    (y1 * z2 - z1 * y2, x1 * z2 - z1 * x2, x1 * y2 - y1 * x2)
+    (y1 * z2 - z1 * y2, z1 * x2 - x1 * z2, x1 * y2 - y1 * x2)
 end
 
 @inline function _dot(x1::T, y1::T, z1::T, x2::T, y2::T, z2::T) where T

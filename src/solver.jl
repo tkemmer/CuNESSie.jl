@@ -60,7 +60,7 @@ function matvec11!(
     dst     ::CuDeviceVector{T},
     elements::CuDeviceVector{T},
     Ξ       ::CuDeviceVector{T},
-    x1      ::CuDeviceVector{T},
+    x       ::CuDeviceVector{T},
     numelem ::Int,
     yuk     ::T
 ) where T
@@ -75,7 +75,7 @@ function matvec11!(
             (i == j ? T(2π) : T(0)) -
                 regularyukawapot_double(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1, yuk)-
                 laplacepot_double(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1),
-            x1[i],
+            x[i],
             val
         )
     end
@@ -87,7 +87,7 @@ function matvec12!(
     dst     ::CuDeviceVector{T},
     elements::CuDeviceVector{T},
     Ξ       ::CuDeviceVector{T},
-    x1      ::CuDeviceVector{T},
+    x       ::CuDeviceVector{T},
     numelem ::Int,
     pref1   ::T,
     pref2   ::T,
@@ -106,7 +106,7 @@ function matvec12!(
                 pref1,
                 pref2 * laplacepot_single(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1)
             ),
-            x1[i],
+            x[i],
             val
         )
     end
@@ -118,7 +118,7 @@ function matvec13!(
     dst     ::CuDeviceVector{T},
     elements::CuDeviceVector{T},
     Ξ       ::CuDeviceVector{T},
-    x1      ::CuDeviceVector{T},
+    x       ::CuDeviceVector{T},
     numelem ::Int,
     pref    ::T,
     yuk     ::T
@@ -132,7 +132,7 @@ function matvec13!(
     for j in 1:numelem
         val = CUDAnative.fma(
             regularyukawapot_double(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1, yuk),
-            x1[i],
+            x[i],
             val
         )
     end
@@ -144,7 +144,7 @@ function matvec21!(
     dst     ::CuDeviceVector{T},
     elements::CuDeviceVector{T},
     Ξ       ::CuDeviceVector{T},
-    x1      ::CuDeviceVector{T},
+    x       ::CuDeviceVector{T},
     numelem ::Int
 ) where T
     i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
@@ -157,7 +157,7 @@ function matvec21!(
         val = CUDAnative.fma(
             (i == j ? T(2π) : T(0)) +
                 laplacepot_double(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1),
-            x1[i],
+            x[i],
             val
         )
     end
@@ -169,7 +169,7 @@ function matvec22!(
     dst     ::CuDeviceVector{T},
     elements::CuDeviceVector{T},
     Ξ       ::CuDeviceVector{T},
-    x1      ::CuDeviceVector{T},
+    x       ::CuDeviceVector{T},
     numelem ::Int
 ) where T
     i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
@@ -181,7 +181,7 @@ function matvec22!(
     for j in 1:numelem
         val = CUDAnative.fma(
             laplacepot_single(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1),
-            x1[i],
+            x[i],
             val
         )
     end
@@ -193,7 +193,7 @@ function matvec32!(
     dst     ::CuDeviceVector{T},
     elements::CuDeviceVector{T},
     Ξ       ::CuDeviceVector{T},
-    x1      ::CuDeviceVector{T},
+    x       ::CuDeviceVector{T},
     numelem ::Int,
     pref    ::T
 ) where T
@@ -206,7 +206,7 @@ function matvec32!(
     for j in 1:numelem
         val = CUDAnative.fma(
             laplacepot_single(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1),
-            x1[i],
+            x[i],
             val
         )
     end
@@ -218,7 +218,7 @@ function matvec33!(
     dst     ::CuDeviceVector{T},
     elements::CuDeviceVector{T},
     Ξ       ::CuDeviceVector{T},
-    x1      ::CuDeviceVector{T},
+    x       ::CuDeviceVector{T},
     numelem ::Int
 ) where T
     i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
@@ -231,7 +231,7 @@ function matvec33!(
         val = CUDAnative.fma(
             (i == j ? T(2π) : T(0)) -
                 laplacepot_double(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1),
-            x1[i],
+            x[i],
             val
         )
     end

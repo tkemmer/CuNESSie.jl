@@ -1,4 +1,5 @@
 using CuNESSie: _clamp, _cos, _cross, _dot, _norm, _pos, _sign, _sub
+using LinearAlgebra: ×
 
 @test_skip "_cathethus"
 
@@ -79,12 +80,12 @@ end
 
         @cuda _cross_kernel!(dst, vals)
         res = Array(dst)
-        @test res[1:3] ≈ T[-2, -4, -2]
-        @test res[4:6] ≈ T[2, 4, 2]
-        @test res[7:9] ≈ T[1, 2, 1]
-        @test res[10:12] ≈ T[-1, -2, -1]
-        @test res[13:15] ≈ T[0, 0, 0]
-        @test res[16:18] ≈ T[0, 0, 0]
+        @test res[1:3] ≈ T[1, 2, 3] × T[4, 6, 8]
+        @test res[4:6] ≈ T[4, 6, 8] × T[1, 2, 3]
+        @test res[7:9] ≈ T[1, 2, 3] × T[-1, -1, -1]
+        @test res[10:12] ≈ T[-1, -1, -1] × T[1, 2, 3]
+        @test res[13:15] ≈ T[1, 2, 3] × T[0, 0, 0]
+        @test res[16:18] ≈ T[0, 0, 0] × T[1, 2, 3]
     end
 end
 

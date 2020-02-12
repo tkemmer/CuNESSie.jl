@@ -75,7 +75,7 @@ function matvec11!(
             (i == j ? T(2π) : T(0)) -
                 regularyukawapot_double(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1, yuk)-
                 laplacepot_double(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1),
-            x[i],
+            x[j],
             val
         )
     end
@@ -106,7 +106,7 @@ function matvec12!(
                 pref1,
                 pref2 * laplacepot_single(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1)
             ),
-            x[i],
+            x[j],
             val
         )
     end
@@ -132,7 +132,7 @@ function matvec13!(
     for j in 1:numelem
         val = CUDAnative.fma(
             regularyukawapot_double(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1, yuk),
-            x[i],
+            x[j],
             val
         )
     end
@@ -157,7 +157,7 @@ function matvec21!(
         val = CUDAnative.fma(
             (i == j ? T(2π) : T(0)) +
                 laplacepot_double(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1),
-            x[i],
+            x[j],
             val
         )
     end
@@ -181,7 +181,7 @@ function matvec22!(
     for j in 1:numelem
         val = CUDAnative.fma(
             laplacepot_single(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1),
-            x[i],
+            x[j],
             val
         )
     end
@@ -206,7 +206,7 @@ function matvec32!(
     for j in 1:numelem
         val = CUDAnative.fma(
             laplacepot_single(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1),
-            x[i],
+            x[j],
             val
         )
     end
@@ -231,7 +231,7 @@ function matvec33!(
         val = CUDAnative.fma(
             (i == j ? T(2π) : T(0)) -
                 laplacepot_double(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1),
-            x[i],
+            x[j],
             val
         )
     end

@@ -29,7 +29,7 @@ end
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
         elements = _elem2cuarr(elem)
         Ξ = CuArray([elem.v1; elem.v2; elem.v3])
-        dst = CuArray{T}(undef, length(Ξ))
+        dst = CuArray{T}(undef, 3)
 
         @cuda _laplace_single_kernel!(dst, Ξ, elements, 3, 1)
         res = Array(dst)
@@ -44,7 +44,7 @@ end
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
         elements = _elem2cuarr(elem)
         Ξ = CuArray(T[0, -1, 0, 0, -1, -1])
-        dst = CuArray{T}(undef, length(Ξ))
+        dst = CuArray{T}(undef, 2)
 
         @cuda _laplace_single_kernel!(dst, Ξ, elements, 2, 1)
         res = Array(dst)
@@ -58,7 +58,7 @@ end
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
         elements = _elem2cuarr(elem)
         Ξ = CuArray(T[1, 0, 0, 1, 1, 0, 1, 0, 1])
-        dst = CuArray{T}(undef, length(Ξ))
+        dst = CuArray{T}(undef, 3)
 
         @cuda _laplace_single_kernel!(dst, Ξ, elements, 3, 1)
         res = Array(dst)
@@ -73,7 +73,7 @@ end
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
         elements = _elem2cuarr(elem)
         Ξ = CuArray(T[1, -1, 0, 1, -1, -1])
-        dst = CuArray{T}(undef, length(Ξ))
+        dst = CuArray{T}(undef, 2)
 
         @cuda _laplace_single_kernel!(dst, Ξ, elements, 2, 1)
         res = Array(dst)
@@ -87,7 +87,7 @@ end
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
         elements = _elem2cuarr(elem)
         Ξ = CuArray([elem.v1; elem.v2; elem.v3])
-        dst = CuArray{T}(undef, length(Ξ))
+        dst = CuArray{T}(undef, 3)
 
         @cuda _laplace_double_kernel!(dst, Ξ, elements, 3, 1)
         res = Array(dst)
@@ -102,7 +102,7 @@ end
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
         elements = _elem2cuarr(elem)
         Ξ = CuArray(T[0, -1, 0, 0, -1, -1])
-        dst = CuArray{T}(undef, length(Ξ))
+        dst = CuArray{T}(undef, 2)
 
         @cuda _laplace_double_kernel!(dst, Ξ, elements, 2, 1)
         res = Array(dst)

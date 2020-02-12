@@ -80,7 +80,7 @@ end
     χ2 = d * d / (d * d + h * h)
     χ  = _sqrt(χ2)
     2 \ h * _log(_logterm(χ2, sinφ2) / _logterm(χ2, sinφ1)) +
-        d * (_asin(χ * sinφ2) - _asin(sinφ2) - _asin(χ * sinφ1) + _asin(sinφ1))
+        _abs(d) * (_asin(χ * sinφ2) - _asin(sinφ2) - _asin(χ * sinφ1) + _asin(sinφ1))
 end
 
 # (unused)
@@ -100,7 +100,7 @@ end
     eidx    ::Int
 ) where T
     dist = _distance(_pos(Ξ, ξidx)..., _pos(elements, eidx + 9)..., elements[eidx + 12])
-    dist < 1e-10 ?
+    _abs(dist) < 1e-10 ?
         _laplacepot(elements, _pos(Ξ, ξidx)..., eidx, dist, _laplacepot_single_plane) :
         _laplacepot(elements,
             _project(_pos(Ξ, ξidx)..., _pos(elements, eidx + 9)..., dist)...,
@@ -114,7 +114,7 @@ end
     eidx    ::Int
 ) where T
     dist = _distance(_pos(Ξ, ξidx)..., _pos(elements, eidx + 9)..., elements[eidx + 12])
-    dist < 1e-10 ?
+    _abs(dist) < 1e-10 ?
         zero(dist) :
         _laplacepot(elements,
             _project(_pos(Ξ, ξidx)..., _pos(elements, eidx + 9)..., dist)...,

@@ -7,6 +7,7 @@ version = "0.1.0"
 [deps]
 CUDAnative = "be33ccc6-a3ff-5ff2-a52e-74243cff1e17"
 CuArrays = "3a865a2d-5b23-5a0f-bc46-62713ec82fae"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 NESSie = "f00e83c4-bd01-11e9-272c-ff1b96fb444d"
 
 [compat]
@@ -14,8 +15,7 @@ julia = "1"
 
 [extras]
 ImplicitArrays = "2c62951c-9479-4435-88c8-614a84373d38"
-LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["ImplicitArrays", "LinearAlgebra", "Test"]
+test = ["ImplicitArrays", "Test"]

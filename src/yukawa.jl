@@ -70,7 +70,7 @@ function _regularyukawapot_double_series(sn::T) where T
     tsum = zero(sn)
     for i in 2:16
         _abs(term) <= tol && break
-        tsum += term * (i-1)
+        tsum = CUDAnative.fma(term, T(i-1), tsum)
         term *= -sn / (i+1)
     end
     tsum

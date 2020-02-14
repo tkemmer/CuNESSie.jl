@@ -1,8 +1,8 @@
 @inline function _degenerate(h::T, sinφ1::T, sinφ2::T) where T
-    CUDAnative.max(zero(h), h) < 1e-10 ||
-    1 - _abs(sinφ1) < 1e-10 ||
-    1 - _abs(sinφ2) < 1e-10 ||
-    _abs(sinφ1 - sinφ2) < 1e-10
+    CUDAnative.max(zero(h), h) < 1e-5 ||
+    1 - _abs(sinφ1) < 1e-5 ||
+    1 - _abs(sinφ2) < 1e-5 ||
+    _abs(sinφ1 - sinφ2) < 1e-5
 end
 
 @inline function _distance(ξx::T, ξy::T, ξz::T, nx::T, ny::T, nz::T, dist::T) where T
@@ -100,7 +100,7 @@ end
     eidx    ::Int
 ) where T
     dist = _distance(_pos(Ξ, ξidx)..., _pos(elements, eidx + 9)..., elements[eidx + 12])
-    _abs(dist) < 1e-10 ?
+    _abs(dist) < 1e-5 ?
         _laplacepot(elements, _pos(Ξ, ξidx)..., eidx, dist, _laplacepot_single_plane) :
         _laplacepot(elements,
             _project(_pos(Ξ, ξidx)..., _pos(elements, eidx + 9)..., dist)...,
@@ -114,7 +114,7 @@ end
     eidx    ::Int
 ) where T
     dist = _distance(_pos(Ξ, ξidx)..., _pos(elements, eidx + 9)..., elements[eidx + 12])
-    _abs(dist) < 1e-10 ?
+    _abs(dist) < 1e-5 ?
         zero(dist) :
         _laplacepot(elements,
             _project(_pos(Ξ, ξidx)..., _pos(elements, eidx + 9)..., dist)...,

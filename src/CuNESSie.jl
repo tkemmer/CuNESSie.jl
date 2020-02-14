@@ -3,6 +3,7 @@ module CuNESSie
 using CuArrays
 using CUDAnative
 using IterativeSolvers: idrs
+using LinearAlgebra
 using NESSie
 using NESSie: unpack, yukawa
 

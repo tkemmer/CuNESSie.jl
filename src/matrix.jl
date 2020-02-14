@@ -19,8 +19,6 @@ end
      ::Int
 ) where T = error("setindex! not defined for ", typeof(A))
 
-using LinearAlgebra
-
 @inline function Base.:*(A::SystemMatrix{T}, x::AbstractArray{T, 1}) where T
     x1 = CuArray(x[1:A.numelem])
     x2 = CuArray(x[(A.numelem + 1):(2 * A.numelem)])

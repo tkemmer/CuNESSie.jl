@@ -9,5 +9,5 @@ function solve(
     numelem  = length(model.elements)
 
     M = SystemMatrix(Ξ, elements, numelem, model.params)
-    idrs(M, ones(T, 3numelem))
+    idrs(M, ones(T, 3numelem), verbose=true)
 end

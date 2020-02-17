@@ -1,4 +1,4 @@
-using CuNESSie: CuPosition, _clamp, _cos, _cross, _dot, _norm, _sign, _sub
+using CuNESSie: CuPosition, _clamp, _cos, _cross, _dot, _norm, _sign, _smul, _sub
 using LinearAlgebra: ×
 
 @test_skip "_cathethus"
@@ -147,6 +147,38 @@ end
         @cuda _sign_kernel!(dst, vals)
         res = Array(dst)
         @test res ≈ T[0, 0, 1, 1, -1, -1]
+    end
+end
+
+@testset "_smul" begin
+    function _smul_kernel!(dst::CuDeviceVector{T}, vals::CuDeviceVector{T}) where T
+        s1 = vals[1]
+        s2 = vals[2]
+        dst[1], dst[2], dst[3] = _smul(CuPosition(vals, 3), s1)
+        dst[4], dst[5], dst[6] = _smul(CuPosition(vals, 3), s2)
+        dst[7], dst[8], dst[9] = _smul(CuPosition(vals, 6), s1)
+        dst[10], dst[11], dst[12] = _smul(CuPosition(vals, 6), s2)
+        dst[13], dst[14], dst[15] = _smul(CuPosition(vals, 9), s1)
+        dst[16], dst[17], dst[18] = _smul(CuPosition(vals, 9), s2)
+        dst[19], dst[20], dst[21] = _smul(CuPosition(vals, 12), s1)
+        dst[22], dst[23], dst[24] = _smul(CuPosition(vals, 12), s2)
+        nothing
+    end
+
+    for T in [Float32, Float64]
+        vals = CuArray(T[2, -2, 1, 2, 3, 4, 6, 8, -1, -1, -1, 0, 0, 0])
+        dst  = CuArray{T}(undef, 24)
+
+        @cuda _smul_kernel!(dst, vals)
+        res = Array(dst)
+        @test res[1:3] ≈ T[2, 4, 6]
+        @test res[4:6] ≈ -T[2, 4, 6]
+        @test res[7:9] ≈ T[8, 12, 16]
+        @test res[10:12] ≈ -T[8, 12, 16]
+        @test res[13:15] ≈ -T[2, 2, 2]
+        @test res[16:18] ≈ T[2, 2, 2]
+        @test res[19:21] ≈ T[0, 0, 0]
+        @test res[22:24] ≈ -T[0, 0, 0]
     end
 end
 

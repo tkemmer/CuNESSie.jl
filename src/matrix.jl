@@ -79,12 +79,14 @@ function matvec11!(
         return nothing
     end
 
+    ξ = CuPosition(Ξ, (i - 1) * 3 + 1)
     val = zero(Ξ[1])
     for j in 1:numelem
+        elem = CuTriangle(elements, (j - 1) * 14 + 1)
         val = CUDAnative.fma(
             (i == j ? T(2π) : T(0)) -
-                regularyukawapot_double(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1, yuk)-
-                laplacepot_double(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1),
+                regularyukawapot_double(ξ, elem, yuk) -
+                laplacepot_double(ξ, elem),
             x[j],
             val
         )
@@ -108,13 +110,15 @@ function matvec12!(
         return nothing
     end
 
+    ξ = CuPosition(Ξ, (i - 1) * 3 + 1)
     val = zero(Ξ[1])
     for j in 1:numelem
+        elem = CuTriangle(elements, (j - 1) * 14 + 1)
         val = CUDAnative.fma(
             CUDAnative.fma(
-                regularyukawapot_single(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1, yuk),
+                regularyukawapot_single(ξ, elem, yuk),
                 pref1,
-                pref2 * laplacepot_single(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1)
+                pref2 * laplacepot_single(ξ, elem)
             ),
             x[j],
             val
@@ -138,10 +142,11 @@ function matvec13!(
         return nothing
     end
 
+    ξ = CuPosition(Ξ, (i - 1) * 3 + 1)
     val = zero(Ξ[1])
     for j in 1:numelem
         val = CUDAnative.fma(
-            regularyukawapot_double(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1, yuk),
+            regularyukawapot_double(ξ, CuTriangle(elements, (j - 1) * 14 + 1), yuk),
             x[j],
             val
         )
@@ -162,11 +167,12 @@ function matvec21!(
         return nothing
     end
 
+    ξ = CuPosition(Ξ, (i - 1) * 3 + 1)
     val = zero(Ξ[1])
     for j in 1:numelem
         val = CUDAnative.fma(
             (i == j ? T(2π) : T(0)) +
-                laplacepot_double(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1),
+                laplacepot_double(ξ, CuTriangle(elements, (j - 1) * 14 + 1)),
             x[j],
             val
         )
@@ -187,10 +193,11 @@ function matvec22!(
         return nothing
     end
 
+    ξ = CuPosition(Ξ, (i - 1) * 3 + 1)
     val = zero(Ξ[1])
     for j in 1:numelem
         val = CUDAnative.fma(
-            laplacepot_single(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1),
+            laplacepot_single(ξ, CuTriangle(elements, (j - 1) * 14 + 1)),
             x[j],
             val
         )
@@ -212,10 +219,11 @@ function matvec32!(
         return nothing
     end
 
+    ξ = CuPosition(Ξ, (i - 1) * 3 + 1)
     val = zero(Ξ[1])
     for j in 1:numelem
         val = CUDAnative.fma(
-            laplacepot_single(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1),
+            laplacepot_single(ξ, CuTriangle(elements, (j - 1) * 14 + 1)),
             x[j],
             val
         )
@@ -236,11 +244,12 @@ function matvec33!(
         return nothing
     end
 
+    ξ = CuPosition(Ξ, (i - 1) * 3 + 1)
     val = zero(Ξ[1])
     for j in 1:numelem
         val = CUDAnative.fma(
             (i == j ? T(2π) : T(0)) -
-                laplacepot_double(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1),
+                laplacepot_double(ξ, CuTriangle(elements, (j - 1) * 14 + 1)),
             x[j],
             val
         )

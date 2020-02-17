@@ -134,8 +134,9 @@ end
         eidx     ::Int,
         yuk      ::T
     ) where T
+        elem = CuTriangle(elements, eidx)
         for ξidx in 1:numξ
-            dst[ξidx] = regularyukawapot_single(Ξ, elements, (ξidx-1) * 3 + 1, eidx, yuk)
+            dst[ξidx] = regularyukawapot_single(CuPosition(Ξ, (ξidx-1) * 3 + 1), elem, yuk)
         end
         nothing
     end
@@ -180,8 +181,9 @@ end
         eidx     ::Int,
         yuk      ::T
     ) where T
+        elem = CuTriangle(elements, eidx)
         for ξidx in 1:numξ
-            dst[ξidx] = regularyukawapot_double(Ξ, elements, (ξidx-1) * 3 + 1, eidx, yuk)
+            dst[ξidx] = regularyukawapot_double(CuPosition(Ξ, (ξidx-1) * 3 + 1), elem, yuk)
         end
         nothing
     end

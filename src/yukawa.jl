@@ -146,25 +146,3 @@ function regularyukawapot_double(
     )
     val * 2 * elem.area
 end
-
-# deprecated
-function regularyukawapot_single(
-    Ξ       ::CuDeviceVector{T},
-    elements::CuDeviceVector{T},
-    ξidx    ::Int,
-    eidx    ::Int,
-    yuk     ::T
-) where T
-    regularyukawapot_single(CuPosition(Ξ, ξidx), CuTriangle(elements, eidx), yuk)
-end
-
-# deprecated
-function regularyukawapot_double(
-    Ξ       ::CuDeviceVector{T},
-    elements::CuDeviceVector{T},
-    ξidx    ::Int,
-    eidx    ::Int,
-    yuk     ::T
-) where T
-    regularyukawapot_double(CuPosition(Ξ, ξidx), CuTriangle(elements, eidx), yuk)
-end

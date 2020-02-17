@@ -1,4 +1,4 @@
-using CuNESSie: _clamp, _cos, _cross, _dot, _norm, _pos, _sign, _sub
+using CuNESSie: CuPosition, _clamp, _cos, _cross, _dot, _norm, _sign, _sub
 using LinearAlgebra: ×
 
 @test_skip "_cathethus"
@@ -23,20 +23,15 @@ end
 
 @testset "_cos" begin
     function _cos_kernel!(dst::CuDeviceVector{T}, vals::CuDeviceVector{T}) where T
-        dst[1] = _cos(
-            _pos(vals, 1)..., _norm(_pos(vals, 1)...),
-            _pos(vals, 1)..., _norm(_pos(vals, 1)...)
-        )
+        u = CuPosition(vals, 1)
+        un = _norm(u)
+        dst[1] = _cos(u, un, u, un)
         for i in 0:5
             j = 1 + (i+1) * 3
-            dst[2i + 2] = _cos(
-                _pos(vals, 1)..., _norm(_pos(vals, 1)...),
-                _pos(vals, j)..., _norm(_pos(vals, j)...)
-            )
-            dst[2i + 3] = _cos(
-                _pos(vals, j)..., _norm(_pos(vals, j)...),
-                _pos(vals, 1)..., _norm(_pos(vals, 1)...)
-            )
+            v = CuPosition(vals, j)
+            vn = _norm(v)
+            dst[2i + 2] = _cos(u, un, v, vn)
+            dst[2i + 3] = _cos(v, vn, u, un)
         end
         nothing
     end
@@ -65,12 +60,16 @@ end
 
 @testset "_cross" begin
     function _cross_kernel!(dst::CuDeviceVector{T}, vals::CuDeviceVector{T}) where T
-        dst[1], dst[2], dst[3] = _cross(_pos(vals, 1)..., _pos(vals, 4)...)
-        dst[4], dst[5], dst[6] = _cross(_pos(vals, 4)..., _pos(vals, 1)...)
-        dst[7], dst[8], dst[9] = _cross(_pos(vals, 1)..., _pos(vals, 7)...)
-        dst[10], dst[11], dst[12] = _cross(_pos(vals, 7)..., _pos(vals, 1)...)
-        dst[13], dst[14], dst[15] = _cross(_pos(vals, 1)..., _pos(vals, 10)...)
-        dst[16], dst[17], dst[18] = _cross(_pos(vals, 10)..., _pos(vals, 1)...)
+        v1 = CuPosition(vals, 1)
+        v2 = CuPosition(vals, 4)
+        v3 = CuPosition(vals, 7)
+        v4 = CuPosition(vals, 10)
+        dst[1], dst[2], dst[3] = _cross(v1, v2)
+        dst[4], dst[5], dst[6] = _cross(v2, v1)
+        dst[7], dst[8], dst[9] = _cross(v1, v3)
+        dst[10], dst[11], dst[12] = _cross(v3, v1)
+        dst[13], dst[14], dst[15] = _cross(v1, v4)
+        dst[16], dst[17], dst[18] = _cross(v4, v1)
         nothing
     end
 
@@ -91,12 +90,16 @@ end
 
 @testset "_dot" begin
     function _dot_kernel!(dst::CuDeviceVector{T}, vals::CuDeviceVector{T}) where T
-        dst[1] = _dot(_pos(vals, 1)..., _pos(vals, 4)...)
-        dst[2] = _dot(_pos(vals, 4)..., _pos(vals, 1)...)
-        dst[3] = _dot(_pos(vals, 1)..., _pos(vals, 7)...)
-        dst[4] = _dot(_pos(vals, 7)..., _pos(vals, 1)...)
-        dst[5] = _dot(_pos(vals, 1)..., _pos(vals, 10)...)
-        dst[6] = _dot(_pos(vals, 10)..., _pos(vals, 1)...)
+        v1 = CuPosition(vals, 1)
+        v2 = CuPosition(vals, 4)
+        v3 = CuPosition(vals, 7)
+        v4 = CuPosition(vals, 10)
+        dst[1] = _dot(v1, v2)
+        dst[2] = _dot(v2, v1)
+        dst[3] = _dot(v1, v3)
+        dst[4] = _dot(v3, v1)
+        dst[5] = _dot(v1, v4)
+        dst[6] = _dot(v4, v1)
         nothing
     end
 
@@ -112,10 +115,10 @@ end
 
 @testset "_norm" begin
     function _norm_kernel!(dst::CuDeviceVector{T}, vals::CuDeviceVector{T}) where T
-        dst[1] = _norm(_pos(vals, 1)...)
-        dst[2] = _norm(_pos(vals, 4)...)
-        dst[3] = _norm(_pos(vals, 7)...)
-        dst[4] = _norm(_pos(vals, 10)...)
+        dst[1] = _norm(CuPosition(vals, 1))
+        dst[2] = _norm(CuPosition(vals, 4))
+        dst[3] = _norm(CuPosition(vals, 7))
+        dst[4] = _norm(CuPosition(vals, 10))
         nothing
     end
 
@@ -149,12 +152,16 @@ end
 
 @testset "_sub" begin
     function _sub_kernel!(dst::CuDeviceVector{T}, vals::CuDeviceVector{T}) where T
-        dst[1], dst[2], dst[3] = _sub(_pos(vals, 1)..., _pos(vals, 4)...)
-        dst[4], dst[5], dst[6] = _sub(_pos(vals, 4)..., _pos(vals, 1)...)
-        dst[7], dst[8], dst[9] = _sub(_pos(vals, 1)..., _pos(vals, 7)...)
-        dst[10], dst[11], dst[12] = _sub(_pos(vals, 7)..., _pos(vals, 1)...)
-        dst[13], dst[14], dst[15] = _sub(_pos(vals, 1)..., _pos(vals, 10)...)
-        dst[16], dst[17], dst[18] = _sub(_pos(vals, 10)..., _pos(vals, 1)...)
+        v1 = CuPosition(vals, 1)
+        v2 = CuPosition(vals, 4)
+        v3 = CuPosition(vals, 7)
+        v4 = CuPosition(vals, 10)
+        dst[1], dst[2], dst[3] = _sub(v1, v2)
+        dst[4], dst[5], dst[6] = _sub(v2, v1)
+        dst[7], dst[8], dst[9] = _sub(v1, v3)
+        dst[10], dst[11], dst[12] = _sub(v3, v1)
+        dst[13], dst[14], dst[15] = _sub(v1, v4)
+        dst[16], dst[17], dst[18] = _sub(v4, v1)
         nothing
     end
 

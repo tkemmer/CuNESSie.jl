@@ -5,8 +5,8 @@
     _abs(sinφ1 - sinφ2) < 1e-5
 end
 
-@inline function _distance(ξx::T, ξy::T, ξz::T, nx::T, ny::T, nz::T, dist::T) where T
-    _dot(ξx, ξy, ξz, nx, ny, nz) - dist
+@inline function _distance(ξ::CuPosition{T}, n::CuPosition{T}, dist::T) where T
+    _dot(ξ, n) - dist
 end
 
 @inline function _logterm(χ2::T, sinφ::T) where T
@@ -15,62 +15,47 @@ end
     (t1 + t2) / (t1 - t2)
 end
 
-@inline function _project(ξx::T, ξy::T, ξz::T, nx::T, ny::T, nz::T, dist::T) where T
-    _sub(ξx, ξy, ξz, nx * dist, ny * dist, nz * dist)
+@inline function _project(ξ::CuPosition{T}, n::CuPosition{T}, dist::T) where T
+    _sub(ξ, _smul(n, dist))
 end
 
-
 @inline function _laplacepot(
-    elements::CuDeviceVector{T},
-    ξx      ::T,
-    ξy      ::T,
-    ξz      ::T,
-    eidx    ::Int,
+    ξ   ::CuPosition{T},
+    elem::CuTriangle{T},
     dist    ::T,
     pot     ::F
 ) where {T, F <: Function}
-    _laplacepot(elements, ξx, ξy, ξz, eidx,     eidx + 3, eidx + 9, dist, pot) +
-    _laplacepot(elements, ξx, ξy, ξz, eidx + 3, eidx + 6, eidx + 9, dist, pot) +
-    _laplacepot(elements, ξx, ξy, ξz, eidx + 6, eidx,     eidx + 9, dist, pot)
+    _laplacepot(ξ, elem.v1, elem.v2, elem.normal, dist, pot) +
+    _laplacepot(ξ, elem.v2, elem.v3, elem.normal, dist, pot) +
+    _laplacepot(ξ, elem.v3, elem.v1, elem.normal, dist, pot)
 end
 
 function _laplacepot(
-    elements::CuDeviceVector{T},
-    ξx      ::T,
-    ξy      ::T,
-    ξz      ::T,
-    x1idx   ::Int,
-    x2idx   ::Int,
-    nidx    ::Int,
-    dist    ::T,
-    pot     ::F
+    ξ   ::CuPosition{T},
+    x1  ::CuPosition{T},
+    x2  ::CuPosition{T},
+    n   ::CuPosition{T},
+    dist::T,
+    pot ::F
 ) where {T, F <: Function}
-    u1x = elements[x1idx] - ξx
-    u1y = elements[x1idx + 1] - ξy
-    u1z = elements[x1idx + 2] - ξz
-    u1n = _norm(u1x, u1y, u1z)
+    u1  = _sub(x1, ξ)
+    u1n = _norm(u1)
 
-    u2x = elements[x2idx] - ξx
-    u2y = elements[x2idx + 1] - ξy
-    u2z = elements[x2idx + 2] - ξz
-    u2n = _norm(u2x, u2y, u2z)
+    u2  = _sub(x2, ξ)
+    u2n = _norm(u2)
 
-    vx = elements[x2idx] - elements[x1idx]
-    vy = elements[x2idx + 1] - elements[x1idx + 1]
-    vz = elements[x2idx + 2] - elements[x1idx + 2]
-    vn = _norm(vx, vy, vz)
+    v  = _sub(u2, u1)
+    vn = _norm(v)
 
-    sinφ1 = _clamp(_cos(u1x, u1y, u1z, u1n, vx, vy, vz, vn), -one(vn), one(vn))
-    sinφ2 = _clamp(_cos(u2x, u2y, u2z, u2n, vx, vy, vz, vn), -one(vn), one(vn))
+    sinφ1 = _clamp(_cos(u1, u1n, v, vn), -one(vn), one(vn))
+    sinφ2 = _clamp(_cos(u2, u2n, v, vn), -one(vn), one(vn))
 
     h = _cathethus(u1n, sinφ1)
 
     _degenerate(h, sinφ1, sinφ2) ?
         zero(h) :
-        _sign(_dot(_cross(u1x, u1y, u1z, u2x, u2y, u2z)..., _pos(elements, nidx)...)) *
-            pot(sinφ1, sinφ2, h, dist)
+        _sign(_dot(_cross(u1, u2), n)) * pot(sinφ1, sinφ2, h, dist)
 end
-
 
 @inline function _laplacepot_single_plane(sinφ1::T, sinφ2::T, h::T, ::T) where T
     2 \ h * _log((1+sinφ2) * (1-sinφ1) / ((1-sinφ2) * (1+sinφ1)))
@@ -89,29 +74,41 @@ end
 end
 
 @inline function laplacepot_single(
+    ξ   ::CuPosition{T},
+    elem::CuTriangle{T}
+) where T
+    dist = _distance(ξ, elem.normal, elem.distorig)
+    _abs(dist) < 1e-5 ?
+        _laplacepot(ξ, elem, dist, _laplacepot_single_plane) :
+        _laplacepot(_project(ξ, elem.normal, dist), elem, dist, _laplacepot_single_space)
+end
+
+@inline function laplacepot_double(
+    ξ   ::CuPosition{T},
+    elem::CuTriangle{T}
+) where T
+    dist = _distance(ξ, elem.normal, elem.distorig)
+    _abs(dist) < 1e-5 ?
+        zero(dist) :
+        _laplacepot(_project(ξ, elem.normal, dist), elem, dist, _laplacepot_double_space)
+end
+
+# deprecated
+@inline function laplacepot_single(
     Ξ       ::CuDeviceVector{T},
     elements::CuDeviceVector{T},
     ξidx    ::Int,
     eidx    ::Int
 ) where T
-    dist = _distance(_pos(Ξ, ξidx)..., _pos(elements, eidx + 9)..., elements[eidx + 12])
-    _abs(dist) < 1e-5 ?
-        _laplacepot(elements, _pos(Ξ, ξidx)..., eidx, dist, _laplacepot_single_plane) :
-        _laplacepot(elements,
-            _project(_pos(Ξ, ξidx)..., _pos(elements, eidx + 9)..., dist)...,
-            eidx, dist, _laplacepot_single_space)
+    laplacepot_single(CuPosition(Ξ, ξidx), CuTriangle(elements, eidx))
 end
 
+# deprecated
 @inline function laplacepot_double(
     Ξ       ::CuDeviceVector{T},
     elements::CuDeviceVector{T},
     ξidx    ::Int,
     eidx    ::Int
 ) where T
-    dist = _distance(_pos(Ξ, ξidx)..., _pos(elements, eidx + 9)..., elements[eidx + 12])
-    _abs(dist) < 1e-5 ?
-        zero(dist) :
-        _laplacepot(elements,
-            _project(_pos(Ξ, ξidx)..., _pos(elements, eidx + 9)..., dist)...,
-            eidx, dist, _laplacepot_double_space)
+    laplacepot_double(CuPosition(Ξ, ξidx), CuTriangle(elements, eidx))
 end

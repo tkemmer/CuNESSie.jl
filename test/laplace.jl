@@ -1,3 +1,5 @@
+using CuNESSie: CuPosition, CuTriangle
+
 function _laplace_single_kernel!(
     dst     ::CuDeviceVector{T},
     Ξ       ::CuDeviceVector{T},
@@ -5,8 +7,9 @@ function _laplace_single_kernel!(
     numξ    ::Int,
     eidx    ::Int
 ) where T
+    elem = CuTriangle(elements, eidx)
     for ξidx in 1:numξ
-        dst[ξidx] = CuNESSie.laplacepot_single(Ξ, elements, (ξidx-1) * 3 + 1, eidx)
+        dst[ξidx] = CuNESSie.laplacepot_single(CuPosition(Ξ, (ξidx-1) * 3 + 1), elem)
     end
     nothing
 end
@@ -18,8 +21,9 @@ function _laplace_double_kernel!(
     numξ    ::Int,
     eidx    ::Int
 ) where T
+    elem = CuTriangle(elements, eidx)
     for ξidx in 1:numξ
-        dst[ξidx] = CuNESSie.laplacepot_double(Ξ, elements, (ξidx-1) * 3 + 1, eidx)
+        dst[ξidx] = CuNESSie.laplacepot_double(CuPosition(Ξ, (ξidx-1) * 3 + 1), elem)
     end
     nothing
 end

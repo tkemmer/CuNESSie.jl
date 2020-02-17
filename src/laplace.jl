@@ -92,23 +92,3 @@ end
         zero(dist) :
         _laplacepot(_project(ξ, elem.normal, dist), elem, dist, _laplacepot_double_space)
 end
-
-# deprecated
-@inline function laplacepot_single(
-    Ξ       ::CuDeviceVector{T},
-    elements::CuDeviceVector{T},
-    ξidx    ::Int,
-    eidx    ::Int
-) where T
-    laplacepot_single(CuPosition(Ξ, ξidx), CuTriangle(elements, eidx))
-end
-
-# deprecated
-@inline function laplacepot_double(
-    Ξ       ::CuDeviceVector{T},
-    elements::CuDeviceVector{T},
-    ξidx    ::Int,
-    eidx    ::Int
-) where T
-    laplacepot_double(CuPosition(Ξ, ξidx), CuTriangle(elements, eidx))
-end

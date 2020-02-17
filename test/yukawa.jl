@@ -1,4 +1,4 @@
-using CuNESSie: _project2d, _regularyukawapot_double, _regularyukawapot_single,
+using CuNESSie: CuTriangle, _project2d, _regularyukawapot_double, _regularyukawapot_single,
     regularyukawapot_double, regularyukawapot_single
 
 @testset "_project2d" begin
@@ -11,8 +11,7 @@ using CuNESSie: _project2d, _regularyukawapot_double, _regularyukawapot_single,
     ) where T
         for ridx in 1:numref
             pr = _project2d(
-                elements,
-                eidx,
+                CuTriangle(elements, eidx),
                 refs[(ridx-1) * 2 + 1],
                 refs[(ridx-1) * 2 + 2]
             )

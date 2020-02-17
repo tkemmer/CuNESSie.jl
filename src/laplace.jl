@@ -83,11 +83,6 @@ end
         _abs(d) * (_asin(χ * sinφ2) - _asin(sinφ2) - _asin(χ * sinφ1) + _asin(sinφ1))
 end
 
-# (unused)
-@inline function _laplacepot_double_plane(::T, ::T, h::T, ::T) where T
-    zero(h)
-end
-
 @inline function _laplacepot_double_space(sinφ1::T, sinφ2::T, h::T, d::T) where T
     χ = _abs(d) / _sqrt(d * d + h * h)
     _sign(d) * (_asin(χ * sinφ1) - _asin(sinφ1) - _asin(χ * sinφ2) + _asin(sinφ2))

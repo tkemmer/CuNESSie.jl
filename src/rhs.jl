@@ -36,14 +36,15 @@ function _rhs_k_kernel!(
         return nothing
     end
 
+    ξ = CuPosition(Ξ, (i - 1) * 3 + 1)
     val = zero(Ξ[1])
     for j in 1:numelem
+        elem = CuTriangle(elements, (j - 1) * 14 + 1)
         val = CUDAnative.fma(
             CUDAnative.fma(
-                regularyukawapot_double(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1, yuk),
+                regularyukawapot_double(ξ, elem, yuk),
                 pref,
-                (i == j ? T(-2π) : T(0)) +
-                    laplacepot_double(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1)
+                (i == j ? T(-2π) : T(0)) + laplacepot_double(ξ, elem)
             ),
             umol[j],
             val
@@ -68,13 +69,15 @@ function _rhs_v_kernel!(
         return nothing
     end
 
+    ξ = CuPosition(Ξ, (i - 1) * 3 + 1)
     val = zero(Ξ[1])
     for j in 1:numelem
+        elem = CuTriangle(elements, (j - 1) * 14 + 1)
         val = CUDAnative.fma(
             CUDAnative.fma(
-                regularyukawapot_single(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1, yuk),
+                regularyukawapot_single(ξ, elem, yuk),
                 pref1,
-                -pref2 * laplacepot_single(Ξ, elements, (i-1) * 3 + 1, (j-1) * 14 + 1)
+                -pref2 * laplacepot_single(ξ, elem)
             ),
             qmol[j],
             val

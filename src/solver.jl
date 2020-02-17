@@ -7,7 +7,14 @@ function solve(
     )
     Ξ        = CuArray(unpack([e.center for e in model.elements]))
     numelem  = length(model.elements)
+    params   = model.params
+    umol     = params.εΩ \   φmol(model)
+    qmol     = params.εΩ \ ∂ₙφmol(model)
 
-    M = SystemMatrix(Ξ, elements, numelem, model.params)
-    idrs(M, ones(T, 3numelem), verbose=true)
+    rhs = zeros(T, 3numelem)
+    rhs[1:numelem] .= righthandside(Ξ, elements, umol, qmol, numelem, params)
+
+    M = SystemMatrix(Ξ, elements, numelem, params)
+
+    idrs(M, rhs, verbose=true)
 end

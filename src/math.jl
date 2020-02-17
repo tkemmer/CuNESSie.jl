@@ -71,6 +71,10 @@ end
     CUDAnative.sqrt(x)
 end
 
+@inline function _smul(v::CuPosition{T}, s::T) where T
+    (x = s * v.x, y = s * v.y, z = s * v.z)
+end
+
 # deprecated
 @inline function _sub(x1::T, y1::T, z1::T, x2::T, y2::T, z2::T) where T
     (x1 - x2, y1 - y2, z1 - z2)

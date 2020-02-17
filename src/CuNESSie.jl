@@ -7,6 +7,7 @@ using LinearAlgebra
 using NESSie
 using NESSie: unpack, yukawa
 
+include("model.jl")
 include("math.jl")
 include("laplace.jl")
 include("yukawa.jl")

@@ -24,6 +24,8 @@ end
 end
 
 function LinearAlgebra.diag(A::SystemMatrix{T}, k::Int = 0) where T
+    k != 0 && error("diag not defined for k != 0")
+
     _config(kernel) = (threads = 256, blocks = cld(A.numelem, 256))
     dst = CuArray{T}(undef, 3 * A.numelem)
     @cuda config=_config _diag_kernel!(dst, A.Ξ, A.elements, A.numelem, yukawa(A.params))

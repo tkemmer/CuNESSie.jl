@@ -23,6 +23,34 @@ end
     Array(matvec(A.elements, A.Ξ, x, A.numelem, A.params))
 end
 
+function LinearAlgebra.diag(A::SystemMatrix{T}, k::Int = 0) where T
+    _config(kernel) = (threads = 256, blocks = cld(A.numelem, 256))
+    dst = CuArray{T}(undef, 3 * A.numelem)
+    @cuda config=_config _diag_kernel!(dst, A.Ξ, A.elements, A.numelem, yukawa(A.params))
+    Array(dst)
+end
+
+function _diag_kernel!(
+    dst     ::CuDeviceVector{T},
+    Ξ       ::CuDeviceVector{T},
+    elements::CuDeviceVector{T},
+    numelem ::Int,
+    yuk     ::T
+) where T
+    i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
+    if i > numelem
+        return nothing
+    end
+
+    ξ = CuPosition(Ξ, (i - 1) * 3 + 1)
+    elem = CuTriangle(elements, (i - 1) * 14 + 1)
+    ld = laplacepot_double(ξ, elem)
+    dst[i]            = T(2π) - regularyukawapot_double(ξ, elem, yuk) - ld
+    dst[i + numelem]  = laplacepot_single(ξ, elem)
+    dst[i + 2numelem] = T(2π) - ld
+    nothing
+end
+
 # TODO mul!/5
 @inline function LinearAlgebra.mul!(
     Y::AbstractArray{T, 1},

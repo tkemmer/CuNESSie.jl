@@ -33,15 +33,15 @@ end
 
 @inline function _regularyukawapot_single(rn ::T, yuk::T) where T
     sn = yuk * rn
-    rn < 1e-5 ?
-        -yuk : sn >= 0.1 ?
+    rn < _etol(rn) ?
+        -yuk : rn >= 0.1 ?
         CUDAnative.expm1(-sn) / rn :
         _regularyukawapot_single_series(sn) / rn
 end
 
 function _regularyukawapot_single_series(sn::T) where T
     term = -sn
-    tol  = 1e-5 * _abs(term)
+    tol  = _etol(sn) * _abs(term)
     tsum = zero(sn)
     for i in 1:15
         _abs(term) <= tol && break
@@ -54,7 +54,7 @@ end
 @inline function _regularyukawapot_double(rn ::T, cs ::T, yuk::T) where T
     sn = yuk * rn
 
-    rn < 1e-5 ?
+    rn < _etol(rn) ?
         zero(rn) : sn >= 0.1 ?
         (one(rn) - (one(rn) + sn) * CUDAnative.exp(-sn)) * cs / rn / rn / rn :
         _regularyukawapot_double_series(sn) * cs / rn / rn / rn
@@ -62,7 +62,7 @@ end
 
 function _regularyukawapot_double_series(sn::T) where T
     term = 2 \ sn * sn
-    tol  = 1e-5 * _abs(term)
+    tol  = _etol(sn) * _abs(term)
     tsum = zero(sn)
     for i in 2:16
         _abs(term) <= tol && break

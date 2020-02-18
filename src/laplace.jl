@@ -1,8 +1,8 @@
 @inline function _degenerate(h::T, sinφ1::T, sinφ2::T) where T
-    CUDAnative.max(zero(h), h) < 1e-5 ||
-    1 - _abs(sinφ1) < 1e-5 ||
-    1 - _abs(sinφ2) < 1e-5 ||
-    _abs(sinφ1 - sinφ2) < 1e-5
+    CUDAnative.max(zero(h), h) < _etol(h) ||
+    1 - _abs(sinφ1) < _etol(h) ||
+    1 - _abs(sinφ2) < _etol(h) ||
+    _abs(sinφ1 - sinφ2) < _etol(h)
 end
 
 @inline function _distance(ξ::CuPosition{T}, n::CuPosition{T}, dist::T) where T
@@ -78,7 +78,7 @@ end
     elem::CuTriangle{T}
 ) where T
     dist = _distance(ξ, elem.normal, elem.distorig)
-    _abs(dist) < 1e-5 ?
+    _abs(dist) < _etol(dist) ?
         _laplacepot(ξ, elem, dist, _laplacepot_single_plane) :
         _laplacepot(_project(ξ, elem.normal, dist), elem, dist, _laplacepot_single_space)
 end
@@ -88,7 +88,7 @@ end
     elem::CuTriangle{T}
 ) where T
     dist = _distance(ξ, elem.normal, elem.distorig)
-    _abs(dist) < 1e-5 ?
+    _abs(dist) < _etol(dist) ?
         zero(dist) :
         _laplacepot(_project(ξ, elem.normal, dist), elem, dist, _laplacepot_double_space)
 end

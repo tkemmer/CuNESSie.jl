@@ -31,6 +31,15 @@ end
      ::Int
 ) where T = error("setindex! not defined for ", typeof(A))
 
+@inline function Base.show(io::IO, ::MIME"text/plain", A::SystemMatrix{T}) where T
+    n = 3 * A.numelem
+    print(io, "$n×$n SystemMatrix{$T}($(A.numelem) triangles, $(repr(A.params)))")
+end
+
+@inline function Base.show(io::IO, A::SystemMatrix{T}) where T
+    print(io, "SystemMatrix{$T}($(A.numelem)Δ)")
+end
+
 function LinearAlgebra.diag(A::SystemMatrix{T}, k::Int = 0) where T
     k != 0 && error("diag not defined for k != 0")
 

@@ -6,6 +6,18 @@ struct SystemMatrix{T} <: AbstractArray{T, 2}
     params  ::Option{T}
 end
 
+@inline function SystemMatrix(model::Model{T, Triangle{T}}) where T
+    elements = CuArray(
+        unpack([[e.v1; e.v2; e.v3; e.normal; e.distorig; e.area] for e in model.elements])
+    )
+    SystemMatrix(
+        CuArray(unpack([e.center for e in model.elements])),
+        elements,
+        length(model.elements),
+        model.params
+    )
+end
+
 @inline Base.size(A::SystemMatrix{T}) where T = (3 * A.numelem, 3 * A.numelem)
 
 @inline Base.getindex(

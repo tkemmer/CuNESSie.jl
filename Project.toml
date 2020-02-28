@@ -10,6 +10,7 @@ CuArrays = "3a865a2d-5b23-5a0f-bc46-62713ec82fae"
 IterativeSolvers = "42fd0dbc-a981-5370-80f2-aaf504508153"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 NESSie = "f00e83c4-bd01-11e9-272c-ff1b96fb444d"
+Preconditioners = "af69fa37-3177-5a40-98ee-561f696e4fcd"
 
 [compat]
 julia = "1"

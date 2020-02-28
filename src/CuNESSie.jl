@@ -2,10 +2,11 @@ module CuNESSie
 
 using CuArrays
 using CUDAnative
-using IterativeSolvers: idrs
+using IterativeSolvers
 using LinearAlgebra
 using NESSie
 using NESSie: unpack, yukawa
+using Preconditioners
 
 include("common.jl")
 include("model.jl")

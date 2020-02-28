@@ -16,5 +16,5 @@ function solve(
 
     M = SystemMatrix(Ξ, elements, numelem, params)
 
-    gmres(M, rhs, verbose=true, restart=size(M, 2), Pl=DiagonalPreconditioner(M))
+    gmres(M, rhs, verbose=true, restart=min(1000, size(M, 2)), Pl=DiagonalPreconditioner(M))
 end

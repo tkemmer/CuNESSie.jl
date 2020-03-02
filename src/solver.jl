@@ -2,10 +2,14 @@ function solve(
          ::Type{NonlocalES},
     model::Model{T, Triangle{T}}
 ) where T
+    Ξ = CuArray([
+        [e.center[1] for e in model.elements];
+        [e.center[2] for e in model.elements];
+        [e.center[3] for e in model.elements]
+    ])
     elements = CuArray(
         unpack([[e.v1; e.v2; e.v3; e.normal; e.distorig; e.area] for e in model.elements])
     )
-    Ξ        = CuArray(unpack([e.center for e in model.elements]))
     numelem  = length(model.elements)
     params   = model.params
     umol     = params.εΩ \   φmol(model)

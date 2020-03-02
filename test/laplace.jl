@@ -9,7 +9,7 @@ function _laplace_single_kernel!(
 ) where T
     elem = CuTriangle(elements, eidx)
     for ξidx in 1:numξ
-        dst[ξidx] = CuNESSie.laplacepot_single(CuPosition(Ξ, (ξidx-1) * 3 + 1), elem)
+        dst[ξidx] = CuNESSie.laplacepot_single(CuPosition(Ξ, ξidx, numξ), elem)
     end
     nothing
 end
@@ -23,7 +23,7 @@ function _laplace_double_kernel!(
 ) where T
     elem = CuTriangle(elements, eidx)
     for ξidx in 1:numξ
-        dst[ξidx] = CuNESSie.laplacepot_double(CuPosition(Ξ, (ξidx-1) * 3 + 1), elem)
+        dst[ξidx] = CuNESSie.laplacepot_double(CuPosition(Ξ, ξidx, numξ), elem)
     end
     nothing
 end
@@ -32,7 +32,7 @@ end
     for T in [Float32, Float64]
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
         elements = _elem2cuarr(elem)
-        Ξ = CuArray([elem.v1; elem.v2; elem.v3])
+        Ξ = _pos2cuxi(elem.v1, elem.v2, elem.v3)
         dst = CuArray{T}(undef, 3)
 
         @cuda _laplace_single_kernel!(dst, Ξ, elements, 3, 1)
@@ -47,7 +47,7 @@ end
     for T in [Float32, Float64]
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
         elements = _elem2cuarr(elem)
-        Ξ = CuArray(T[0, -1, 0, 0, -1, -1])
+        Ξ = _pos2cuxi(T[0, -1, 0], T[0, -1, -1])
         dst = CuArray{T}(undef, 2)
 
         @cuda _laplace_single_kernel!(dst, Ξ, elements, 2, 1)
@@ -61,7 +61,7 @@ end
     for T in [Float32, Float64]
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
         elements = _elem2cuarr(elem)
-        Ξ = CuArray(T[1, 0, 0, 1, 1, 0, 1, 0, 1])
+        Ξ = _pos2cuxi(T[1, 0, 0], T[1, 1, 0], T[1, 0, 1])
         dst = CuArray{T}(undef, 3)
 
         @cuda _laplace_single_kernel!(dst, Ξ, elements, 3, 1)
@@ -76,7 +76,7 @@ end
     for T in [Float32, Float64]
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
         elements = _elem2cuarr(elem)
-        Ξ = CuArray(T[1, -1, 0, 1, -1, -1])
+        Ξ = _pos2cuxi(T[1, -1, 0], T[1, -1, -1])
         dst = CuArray{T}(undef, 2)
 
         @cuda _laplace_single_kernel!(dst, Ξ, elements, 2, 1)
@@ -90,7 +90,7 @@ end
     for T in [Float32, Float64]
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
         elements = _elem2cuarr(elem)
-        Ξ = CuArray([elem.v1; elem.v2; elem.v3])
+        Ξ = _pos2cuxi(elem.v1, elem.v2, elem.v3)
         dst = CuArray{T}(undef, 3)
 
         @cuda _laplace_double_kernel!(dst, Ξ, elements, 3, 1)
@@ -105,7 +105,7 @@ end
     for T in [Float32, Float64]
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
         elements = _elem2cuarr(elem)
-        Ξ = CuArray(T[0, -1, 0, 0, -1, -1])
+        Ξ = _pos2cuxi(T[0, -1, 0], T[0, -1, -1])
         dst = CuArray{T}(undef, 2)
 
         @cuda _laplace_double_kernel!(dst, Ξ, elements, 2, 1)
@@ -119,7 +119,7 @@ end
     for T in [Float32, Float64]
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
         elements = _elem2cuarr(elem)
-        Ξ = CuArray(T[1, 0, 0, 1, 1, 0, 1, 0, 1])
+        Ξ = _pos2cuxi(T[1, 0, 0], T[1, 1, 0], T[1, 0, 1])
         dst = CuArray{T}(undef, 3)
 
         @cuda _laplace_double_kernel!(dst, Ξ, elements, 3, 1)
@@ -134,7 +134,7 @@ end
     for T in [Float32, Float64]
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
         elements = _elem2cuarr(elem)
-        Ξ = CuArray(T[1, -1, 0, 1, -1, -1])
+        Ξ = _pos2cuxi(T[1, -1, 0], T[1, -1, -1])
         dst = CuArray{T}(undef, 2)
 
         @cuda _laplace_double_kernel!(dst, Ξ, elements, 2, 1)

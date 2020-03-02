@@ -21,7 +21,7 @@ using NESSie: yukawa
         cuelements = _elem2cuarr(elements...)
 
         Ξ = [e.center for e in elements]
-        cuΞ = CuArray(NESSie.unpack(Ξ))
+        cuΞ = _pos2cuxi(Ξ...)
 
         numelem = length(elements)
         dst = CuArray{T}(undef, numelem)
@@ -60,7 +60,7 @@ end
         cuelements = _elem2cuarr(elements...)
 
         Ξ = [e.center for e in elements]
-        cuΞ = CuArray(NESSie.unpack(Ξ))
+        cuΞ = _pos2cuxi(Ξ...)
 
         numelem = length(elements)
         dst = CuArray{T}(undef, numelem)

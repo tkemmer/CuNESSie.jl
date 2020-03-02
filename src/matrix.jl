@@ -1,17 +1,22 @@
 # TODO
 struct SystemMatrix{T} <: AbstractArray{T, 2}
-    Ξ       ::CuVector{T}
-    elements::CuVector{T}
+    Ξ       ::CuVector{T} # soa
+    elements::CuVector{T} # aso
     numelem ::Int
     params  ::Option{T}
 end
 
 @inline function SystemMatrix(model::Model{T, Triangle{T}}) where T
+    Ξ = CuArray([
+        [e.center[1] for e in model.elements];
+        [e.center[2] for e in model.elements];
+        [e.center[3] for e in model.elements]
+    ])
     elements = CuArray(
         unpack([[e.v1; e.v2; e.v3; e.normal; e.distorig; e.area] for e in model.elements])
     )
     SystemMatrix(
-        CuArray(unpack([e.center for e in model.elements])),
+        Ξ,
         elements,
         length(model.elements),
         model.params
@@ -61,7 +66,7 @@ function _diag_kernel!(
         return nothing
     end
 
-    ξ = CuPosition(Ξ, (i - 1) * 3 + 1)
+    ξ = CuPosition(Ξ, i, numelem)
     elem = CuTriangle(elements, (i - 1) * 14 + 1)
     ld = laplacepot_double(ξ, elem)
     dst[i]            = T(2π) - regularyukawapot_double(ξ, elem, yuk) - ld
@@ -126,7 +131,7 @@ function _mul_ls_kernel!(
     i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
     i > numelem && return
 
-    ξ = CuPosition(Ξ, (i - 1) * 3 + 1)
+    ξ = CuPosition(Ξ, i, numelem)
     val = T(0)
     for j in 1:numelem
         elem = CuTriangle(elements, (j - 1) * 14 + 1)
@@ -148,7 +153,7 @@ function _mul_ld_kernel!(
     i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
     i > numelem && return
 
-    ξ = CuPosition(Ξ, (i - 1) * 3 + 1)
+    ξ = CuPosition(Ξ, i, numelem)
     val12 = T(0)
     val3  = T(0)
     for j in 1:numelem
@@ -176,7 +181,7 @@ function _mul_ys_kernel!(
     i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
     i > numelem && return
 
-    ξ = CuPosition(Ξ, (i - 1) * 3 + 1)
+    ξ = CuPosition(Ξ, i, numelem)
     val = T(0)
     for j in 1:numelem
         elem = CuTriangle(elements, (j - 1) * 14 + 1)
@@ -198,7 +203,7 @@ function _mul_yd_kernel!(
     i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
     i > numelem && return
 
-    ξ = CuPosition(Ξ, (i - 1) * 3 + 1)
+    ξ = CuPosition(Ξ, i, numelem)
     val1 = T(0)
     val2 = T(0)
     for j in 1:numelem

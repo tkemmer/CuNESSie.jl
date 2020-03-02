@@ -36,7 +36,7 @@ function _rhs_k_kernel!(
         return nothing
     end
 
-    ξ = CuPosition(Ξ, (i - 1) * 3 + 1)
+    ξ = CuPosition(Ξ, i, numelem)
     val = zero(Ξ[1])
     for j in 1:numelem
         elem = CuTriangle(elements, (j - 1) * 14 + 1)
@@ -69,7 +69,7 @@ function _rhs_v_kernel!(
         return nothing
     end
 
-    ξ = CuPosition(Ξ, (i - 1) * 3 + 1)
+    ξ = CuPosition(Ξ, i, numelem)
     val = zero(Ξ[1])
     for j in 1:numelem
         elem = CuTriangle(elements, (j - 1) * 14 + 1)

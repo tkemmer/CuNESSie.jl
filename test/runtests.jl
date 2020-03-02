@@ -11,6 +11,14 @@ using Test
     )
 end
 
+@inline function _pos2cuxi(pos::Vector{T}...) where T
+    CuArray([
+        [p[1] for p in pos];
+        [p[2] for p in pos];
+        [p[3] for p in pos]
+    ])
+end
+
 @testset "CuNESSie.jl" begin
     @testset "math.jl" begin include("math.jl") end
     @testset "laplace.jl" begin include("laplace.jl") end

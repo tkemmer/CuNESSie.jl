@@ -136,19 +136,19 @@ end
     ) where T
         elem = CuTriangle(elements, eidx)
         for ξidx in 1:numξ
-            dst[ξidx] = regularyukawapot_single(CuPosition(Ξ, (ξidx-1) * 3 + 1), elem, yuk)
+            dst[ξidx] = regularyukawapot_single(CuPosition(Ξ, ξidx, numξ), elem, yuk)
         end
         nothing
     end
 
     for T in [Float32, Float64]
         yuk = T(7)
-        Ξ = CuArray(T[
-            0, 0, 0,    0, 1, 0,    0, 0, 1,
-            0, -1, 0,   0, -1, -1,
-            1, 0, 0,    1, 1, 0,    1, 0, 1,
-            1, -1, 0,   1, -1, -1
-        ])
+        Ξ = _pos2cuxi(
+            T[0, 0, 0],  T[0, 1, 0],   T[0, 0, 1],
+            T[0, -1, 0], T[0, -1, -1],
+            T[1, 0, 0],  T[1, 1, 0],   T[1, 0, 1],
+            T[1, -1, 0], T[1, -1, -1]
+        )
         dst  = CuArray{T}(undef, length(Ξ))
 
         for elem in [
@@ -183,19 +183,19 @@ end
     ) where T
         elem = CuTriangle(elements, eidx)
         for ξidx in 1:numξ
-            dst[ξidx] = regularyukawapot_double(CuPosition(Ξ, (ξidx-1) * 3 + 1), elem, yuk)
+            dst[ξidx] = regularyukawapot_double(CuPosition(Ξ, ξidx, numξ), elem, yuk)
         end
         nothing
     end
 
     for T in [Float32, Float64]
         yuk = T(7)
-        Ξ = CuArray(T[
-            0, 0, 0,    0, 1, 0,    0, 0, 1,
-            0, -1, 0,   0, -1, -1,
-            1, 0, 0,    1, 1, 0,    1, 0, 1,
-            1, -1, 0,   1, -1, -1
-        ])
+        Ξ = _pos2cuxi(
+            T[0, 0, 0],  T[0, 1, 0],   T[0, 0, 1],
+            T[0, -1, 0], T[0, -1, -1],
+            T[1, 0, 0],  T[1, 1, 0],   T[1, 0, 1],
+            T[1, -1, 0], T[1, -1, -1]
+        )
         dst  = CuArray{T}(undef, length(Ξ))
 
         for elem in [

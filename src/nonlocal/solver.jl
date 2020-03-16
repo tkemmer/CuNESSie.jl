@@ -11,7 +11,7 @@ function NonlocalSystem(model::Model{T, Triangle{T}}) where T
 
     A    = NonlocalSystemMatrix(cuΞ, cuelms, length(model.elements), model.params)
     umol = model.params.εΩ .\   φmol(model, tolerance=_etol(T))
-    qmol = model.params.εΩ .\ ∂ₙφmol(model, tolerance=_etol(T))
+    qmol = model.params.εΩ .\ ∂ₙφmol(model)
     b    = NonlocalSystemOutputs(A, umol, qmol)
 
     NonlocalSystem(A, b, umol, qmol)

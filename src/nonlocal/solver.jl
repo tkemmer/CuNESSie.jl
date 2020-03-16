@@ -1,8 +1,9 @@
 struct NonlocalSystem{T}
-    A   ::NonlocalSystemMatrix{T}
-    b   ::NonlocalSystemOutputs{T}
-    umol::Vector{T}
-    qmol::Vector{T}
+    model::Model{T, Triangle{T}}
+    A    ::NonlocalSystemMatrix{T}
+    b    ::NonlocalSystemOutputs{T}
+    umol ::Vector{T}
+    qmol ::Vector{T}
 end
 
 function NonlocalSystem(model::Model{T, Triangle{T}}) where T
@@ -14,7 +15,7 @@ function NonlocalSystem(model::Model{T, Triangle{T}}) where T
     qmol = model.params.εΩ .\ ∂ₙφmol(model)
     b    = NonlocalSystemOutputs(A, umol, qmol)
 
-    NonlocalSystem(A, b, umol, qmol)
+    NonlocalSystem(model, A, b, umol, qmol)
 end
 
 function solve(sys::NonlocalSystem{T}) where T

@@ -96,7 +96,7 @@ function _mul(
     numelem ::Int,
     params  ::Option{T}
 ) where T
-    _config(kernel) = (threads = 256, blocks = cld(numelem, 256))
+    _config(kernel) = (threads = 128, blocks = cld(numelem, 128))
     yuk = yukawa(params)
 
     ls = CuArray{T}(undef, 3numelem)

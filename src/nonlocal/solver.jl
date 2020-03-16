@@ -10,8 +10,8 @@ function NonlocalSystem(model::Model{T, Triangle{T}}) where T
     cuelms = elements2device(model.elements)
 
     A    = NonlocalSystemMatrix(cuΞ, cuelms, length(model.elements), model.params)
-    umol = model.params.εΩ .\   φmol(model)
-    qmol = model.params.εΩ .\ ∂ₙφmol(model)
+    umol = model.params.εΩ .\   φmol(model, tolerance=_etol(T))
+    qmol = model.params.εΩ .\ ∂ₙφmol(model, tolerance=_etol(T))
     b    = NonlocalSystemOutputs(A, umol, qmol)
 
     NonlocalSystem(A, b, umol, qmol)

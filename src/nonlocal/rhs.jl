@@ -42,31 +42,6 @@ end
      ::Int
 ) where T = error("setindex! not defined for ", typeof(v))
 
-# deprecated
-function righthandside(
-    Ξ       ::CuVector{T},
-    elements::CuVector{T},
-    umol    ::Vector{T},
-    qmol    ::Vector{T},
-    numelem ::Int,
-    params  ::Option{T}
-) where T
-    yuk = yukawa(params)
-    _config(kernel) = (threads = 256, blocks = cld(numelem, 256))
-
-    cux = CuArray(umol)
-    ks  = CuArray{T}(undef, numelem)
-    @cuda config=_config _rhs_k_kernel!(ks, elements, Ξ, cux, numelem,
-        one(yuk) - (params.εΩ / params.εΣ), yuk)
-
-    cux = CuArray(qmol)
-    vs  = CuArray{T}(undef, numelem)
-    @cuda config=_config _rhs_v_kernel!(vs, elements, Ξ, cux, numelem,
-        params.εΩ * (one(yuk)/params.εΣ - one(yuk)/params.ε∞), params.εΩ / params.ε∞, yuk)
-
-    Array(ks .+ vs)
-end
-
 function _rhs_k_kernel!(
     dst     ::CuDeviceVector{T},
     elements::CuDeviceVector{T},

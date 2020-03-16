@@ -13,8 +13,10 @@ include("model.jl")
 include("math.jl")
 include("laplace.jl")
 include("yukawa.jl")
-include("matrix.jl")
-include("rhs.jl")
-include("solver.jl")
+
+# nonlocal BEM
+include("nonlocal/matrix.jl")
+include("nonlocal/rhs.jl")
+include("nonlocal/solver.jl")
 
 end # module

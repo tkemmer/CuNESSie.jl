@@ -8,11 +8,11 @@ using NESSie
 using NESSie: yukawa
 using Preconditioners
 
-include("common.jl")
-include("model.jl")
-include("math.jl")
-include("laplace.jl")
-include("yukawa.jl")
+include("base/common.jl")
+include("base/model.jl")
+include("base/math.jl")
+include("base/laplace.jl")
+include("base/yukawa.jl")
 
 # nonlocal BEM
 include("nonlocal/matrix.jl")

@@ -1,12 +1,12 @@
 # TODO
-struct SystemMatrix{T} <: AbstractArray{T, 2}
+struct NonlocalSystemMatrix{T} <: AbstractArray{T, 2}
     Ξ       ::CuVector{T} # soa
     elements::CuVector{T} # aso
     numelem ::Int
     params  ::Option{T}
 end
 
-@inline function SystemMatrix(model::Model{T, Triangle{T}}) where T
+@inline function NonlocalSystemMatrix(model::Model{T, Triangle{T}}) where T
     Ξ = CuArray([
         [e.center[1] for e in model.elements];
         [e.center[2] for e in model.elements];
@@ -15,7 +15,7 @@ end
     elements = CuArray(
         unpack([[e.v1; e.v2; e.v3; e.normal; e.distorig; e.area] for e in model.elements])
     )
-    SystemMatrix(
+    NonlocalSystemMatrix(
         Ξ,
         elements,
         length(model.elements),
@@ -23,29 +23,29 @@ end
     )
 end
 
-@inline Base.size(A::SystemMatrix{T}) where T = (3 * A.numelem, 3 * A.numelem)
+@inline Base.size(A::NonlocalSystemMatrix{T}) where T = (3 * A.numelem, 3 * A.numelem)
 
 @inline Base.getindex(
-    A::SystemMatrix{T},
+    A::NonlocalSystemMatrix{T},
      ::Int
 ) where T = error("getindex not defined for ", typeof(A))
 
 @inline Base.setindex!(
-    A::SystemMatrix{T},
+    A::NonlocalSystemMatrix{T},
      ::Any,
      ::Int
 ) where T = error("setindex! not defined for ", typeof(A))
 
-@inline function Base.show(io::IO, ::MIME"text/plain", A::SystemMatrix{T}) where T
+@inline function Base.show(io::IO, ::MIME"text/plain", A::NonlocalSystemMatrix{T}) where T
     n = 3 * A.numelem
-    print(io, "$n×$n SystemMatrix{$T}($(A.numelem) triangles, $(repr(A.params)))")
+    print(io, "$n×$n NonlocalSystemMatrix{$T}($(A.numelem) triangles, $(repr(A.params)))")
 end
 
-@inline function Base.show(io::IO, A::SystemMatrix{T}) where T
-    print(io, "SystemMatrix{$T}($(A.numelem)Δ)")
+@inline function Base.show(io::IO, A::NonlocalSystemMatrix{T}) where T
+    print(io, "NonlocalSystemMatrix{$T}($(A.numelem)Δ)")
 end
 
-function LinearAlgebra.diag(A::SystemMatrix{T}, k::Int = 0) where T
+function LinearAlgebra.diag(A::NonlocalSystemMatrix{T}, k::Int = 0) where T
     k != 0 && error("diag not defined for k != 0")
 
     _config(kernel) = (threads = 256, blocks = cld(A.numelem, 256))
@@ -78,13 +78,13 @@ end
 # TODO mul!/5
 @inline function LinearAlgebra.mul!(
     Y::AbstractArray{T, 1},
-    A::SystemMatrix{T},
+    A::NonlocalSystemMatrix{T},
     v::AbstractArray{T, 1}
 ) where T
     Y .= A * v
 end
 
-@inline function Base.:*(A::SystemMatrix{T}, x::AbstractArray{T, 1}) where T
+@inline function Base.:*(A::NonlocalSystemMatrix{T}, x::AbstractArray{T, 1}) where T
     Array(_mul(A.elements, A.Ξ, CuArray(x), A.numelem, A.params))
 end
 

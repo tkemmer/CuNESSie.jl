@@ -18,7 +18,7 @@ function solve(
     rhs = zeros(T, 3numelem)
     rhs[1:numelem] .= righthandside(Ξ, elements, umol, qmol, numelem, params)
 
-    M = SystemMatrix(Ξ, elements, numelem, params)
+    M = NonlocalSystemMatrix(Ξ, elements, numelem, params)
 
     gmres(M, rhs, verbose=true, restart=min(200, size(M, 2)), Pl=DiagonalPreconditioner(M))
 end

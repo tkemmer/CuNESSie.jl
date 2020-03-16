@@ -1,4 +1,4 @@
-using CuNESSie: CuPosition, _clamp, _cos, _cross, _dot, _norm, _sign, _smul, _sub
+using CuNESSie: _clamp, _cos, _cross, _dot, _norm, _sign, _smul, _sub
 using LinearAlgebra: ×
 
 @test_skip "_cathethus"

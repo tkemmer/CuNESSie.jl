@@ -5,8 +5,6 @@ using NESSie
 using ImplicitArrays
 using Test
 
-using CuNESSie: Ξ2device, elements2device
-
 @testset "CuNESSie.jl" begin
     @testset "base" begin
         @testset "math.jl" begin include("base/math.jl") end

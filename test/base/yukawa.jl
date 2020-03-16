@@ -1,5 +1,4 @@
-using CuNESSie: CuTriangle, _project2d, _regularyukawapot_double, _regularyukawapot_single,
-    regularyukawapot_double, regularyukawapot_single
+using CuNESSie: _project2d, _regularyukawapot_double, _regularyukawapot_single
 
 @testset "_project2d" begin
     function  _project2d_kernel!(

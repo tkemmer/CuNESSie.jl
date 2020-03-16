@@ -1,7 +1,11 @@
-function solve(
-         ::Type{NonlocalES},
-    model::Model{T, Triangle{T}}
-) where T
+struct NonlocalSystem{T}
+    A   ::NonlocalSystemMatrix{T}
+    b   ::NonlocalSystemOutputs{T}
+    umol::Vector{T}
+    qmol::Vector{T}
+end
+
+function NonlocalSystem(model::Model{T, Triangle{T}}) where T
     Ξ = CuArray([
         [e.center[1] for e in model.elements];
         [e.center[2] for e in model.elements];
@@ -10,15 +14,24 @@ function solve(
     elements = CuArray(
         unpack([[e.v1; e.v2; e.v3; e.normal; e.distorig; e.area] for e in model.elements])
     )
-    numelem  = length(model.elements)
-    params   = model.params
-    umol     = params.εΩ \   φmol(model)
-    qmol     = params.εΩ \ ∂ₙφmol(model)
 
-    rhs = zeros(T, 3numelem)
-    rhs[1:numelem] .= righthandside(Ξ, elements, umol, qmol, numelem, params)
+    A    = NonlocalSystemMatrix(Ξ, elements, length(model.elements), model.params)
+    umol = model.params.εΩ .\   φmol(model)
+    qmol = model.params.εΩ .\ ∂ₙφmol(model)
+    b    = NonlocalSystemOutputs(A, umol, qmol)
 
-    M = NonlocalSystemMatrix(Ξ, elements, numelem, params)
-
-    gmres(M, rhs, verbose=true, restart=min(200, size(M, 2)), Pl=DiagonalPreconditioner(M))
+    NonlocalSystem(A, b, umol, qmol)
 end
+
+function solve(sys::NonlocalSystem{T}) where T
+    gmres(sys.A, sys.b,
+        verbose=true,
+        restart=min(200, size(sys.A, 2)),
+        Pl=DiagonalPreconditioner(sys.A)
+    )
+end
+
+@inline solve(
+         ::Type{NonlocalES},
+    model::Model{T, Triangle{T}}
+) where T = solve(NonlocalSystem(model))

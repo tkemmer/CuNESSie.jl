@@ -36,11 +36,11 @@ end
     end
 
     for T in [Float32, Float64]
-        vals = _pos2cuxi(
+        vals = Ξ2device([
             T[1, 0, 0],
             T[0, 1, 0], T[-1, 0, 0], T[0, -1, 0],
             T[1, 1, 0], T[-1, 1, 0], T[1, 0, 1]
-        )
+        ])
         dst  = CuArray{T}(undef, 13)
 
         @cuda _cos_kernel!(dst, vals, 7)
@@ -77,7 +77,7 @@ end
     end
 
     for T in [Float32, Float64]
-        vals = _pos2cuxi(T[1, 2, 3], T[4, 6, 8], T[-1, -1, -1], T[0, 0, 0])
+        vals = Ξ2device([T[1, 2, 3], T[4, 6, 8], T[-1, -1, -1], T[0, 0, 0]])
         dst  = CuArray{T}(undef, 3 * 6)
 
         @cuda _cross_kernel!(dst, vals, 4)
@@ -107,7 +107,7 @@ end
     end
 
     for T in [Float32, Float64]
-        vals = _pos2cuxi(T[1, 2, 3], T[4, 6, 8], T[-1, -1, -1], T[0, 0, 0])
+        vals = Ξ2device([T[1, 2, 3], T[4, 6, 8], T[-1, -1, -1], T[0, 0, 0]])
         dst  = CuArray{T}(undef, 6)
 
         @cuda _dot_kernel!(dst, vals, 4)
@@ -126,7 +126,7 @@ end
     end
 
     for T in [Float32, Float64]
-        vals = _pos2cuxi(T[1, 2, 3], T[4, 6, 8], T[-1, -1, -1], T[0, 0, 0])
+        vals = Ξ2device([T[1, 2, 3], T[4, 6, 8], T[-1, -1, -1], T[0, 0, 0]])
         dst  = CuArray{T}(undef, 4)
 
         @cuda _norm_kernel!(dst, vals, 4)
@@ -168,7 +168,7 @@ end
     end
 
     for T in [Float32, Float64]
-        vals = _pos2cuxi(T[1, 2, 3], T[4, 6, 8], T[-1, -1, -1], T[0, 0, 0])
+        vals = Ξ2device([T[1, 2, 3], T[4, 6, 8], T[-1, -1, -1], T[0, 0, 0]])
         dst  = CuArray{T}(undef, 12)
 
         @cuda _smul_kernel!(dst, vals, T(2), 4)
@@ -203,7 +203,7 @@ end
     end
 
     for T in [Float32, Float64]
-        vals = _pos2cuxi(T[1, 2, 3], T[4, 6, 8], T[-1, -1, -1], T[0, 0, 0])
+        vals = Ξ2device([T[1, 2, 3], T[4, 6, 8], T[-1, -1, -1], T[0, 0, 0]])
         dst  = CuArray{T}(undef, 3 * 6)
 
         @cuda _sub_kernel!(dst, vals, 4)

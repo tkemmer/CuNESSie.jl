@@ -18,10 +18,10 @@ using NESSie: yukawa
             Triangle(v2, v3, v4),
             Triangle(v3, v1, v4)
         ]
-        cuelements = _elem2cuarr(elements...)
+        cuelements = elements2device(elements)
 
         Ξ = [e.center for e in elements]
-        cuΞ = _pos2cuxi(Ξ...)
+        cuΞ = Ξ2device(Ξ)
 
         numelem = length(elements)
         dst = CuArray{T}(undef, numelem)
@@ -57,10 +57,10 @@ end
             Triangle(v2, v3, v4),
             Triangle(v3, v1, v4)
         ]
-        cuelements = _elem2cuarr(elements...)
+        cuelements = elements2device(elements)
 
         Ξ = [e.center for e in elements]
-        cuΞ = _pos2cuxi(Ξ...)
+        cuΞ = Ξ2device(Ξ)
 
         numelem = length(elements)
         dst = CuArray{T}(undef, numelem)

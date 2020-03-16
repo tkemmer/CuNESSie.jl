@@ -5,7 +5,7 @@ using CUDAnative
 using IterativeSolvers
 using LinearAlgebra
 using NESSie
-using NESSie: unpack, yukawa
+using NESSie: yukawa
 using Preconditioners
 
 include("common.jl")

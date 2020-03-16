@@ -31,8 +31,8 @@ end
 @testset "[sl] ξ is vertex" begin
     for T in [Float32, Float64]
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
-        elements = _elem2cuarr(elem)
-        Ξ = _pos2cuxi(elem.v1, elem.v2, elem.v3)
+        elements = elements2device([elem])
+        Ξ = Ξ2device([elem.v1, elem.v2, elem.v3])
         dst = CuArray{T}(undef, 3)
 
         @cuda _laplace_single_kernel!(dst, Ξ, elements, 3, 1)
@@ -46,8 +46,8 @@ end
 @testset "[sl] ξ in plane" begin
     for T in [Float32, Float64]
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
-        elements = _elem2cuarr(elem)
-        Ξ = _pos2cuxi(T[0, -1, 0], T[0, -1, -1])
+        elements = elements2device([elem])
+        Ξ = Ξ2device([T[0, -1, 0], T[0, -1, -1]])
         dst = CuArray{T}(undef, 2)
 
         @cuda _laplace_single_kernel!(dst, Ξ, elements, 2, 1)
@@ -60,8 +60,8 @@ end
 @testset "[sl] ξ on normal through vertex" begin
     for T in [Float32, Float64]
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
-        elements = _elem2cuarr(elem)
-        Ξ = _pos2cuxi(T[1, 0, 0], T[1, 1, 0], T[1, 0, 1])
+        elements = elements2device([elem])
+        Ξ = Ξ2device([T[1, 0, 0], T[1, 1, 0], T[1, 0, 1]])
         dst = CuArray{T}(undef, 3)
 
         @cuda _laplace_single_kernel!(dst, Ξ, elements, 3, 1)
@@ -75,8 +75,8 @@ end
 @testset "[sl] ξ somewhere in space" begin
     for T in [Float32, Float64]
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
-        elements = _elem2cuarr(elem)
-        Ξ = _pos2cuxi(T[1, -1, 0], T[1, -1, -1])
+        elements = elements2device([elem])
+        Ξ = Ξ2device([T[1, -1, 0], T[1, -1, -1]])
         dst = CuArray{T}(undef, 2)
 
         @cuda _laplace_single_kernel!(dst, Ξ, elements, 2, 1)
@@ -89,8 +89,8 @@ end
 @testset "[dl] ξ is vertex" begin
     for T in [Float32, Float64]
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
-        elements = _elem2cuarr(elem)
-        Ξ = _pos2cuxi(elem.v1, elem.v2, elem.v3)
+        elements = elements2device([elem])
+        Ξ = Ξ2device([elem.v1, elem.v2, elem.v3])
         dst = CuArray{T}(undef, 3)
 
         @cuda _laplace_double_kernel!(dst, Ξ, elements, 3, 1)
@@ -104,8 +104,8 @@ end
 @testset "[dl] ξ in plane" begin
     for T in [Float32, Float64]
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
-        elements = _elem2cuarr(elem)
-        Ξ = _pos2cuxi(T[0, -1, 0], T[0, -1, -1])
+        elements = elements2device([elem])
+        Ξ = Ξ2device([T[0, -1, 0], T[0, -1, -1]])
         dst = CuArray{T}(undef, 2)
 
         @cuda _laplace_double_kernel!(dst, Ξ, elements, 2, 1)
@@ -118,8 +118,8 @@ end
 @testset "[dl] ξ on normal through vertex" begin
     for T in [Float32, Float64]
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
-        elements = _elem2cuarr(elem)
-        Ξ = _pos2cuxi(T[1, 0, 0], T[1, 1, 0], T[1, 0, 1])
+        elements = elements2device([elem])
+        Ξ = Ξ2device([T[1, 0, 0], T[1, 1, 0], T[1, 0, 1]])
         dst = CuArray{T}(undef, 3)
 
         @cuda _laplace_double_kernel!(dst, Ξ, elements, 3, 1)
@@ -133,8 +133,8 @@ end
 @testset "[dl] ξ somewhere in space" begin
     for T in [Float32, Float64]
         elem = Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1])
-        elements = _elem2cuarr(elem)
-        Ξ = _pos2cuxi(T[1, -1, 0], T[1, -1, -1])
+        elements = elements2device([elem])
+        Ξ = Ξ2device([T[1, -1, 0], T[1, -1, -1]])
         dst = CuArray{T}(undef, 2)
 
         @cuda _laplace_double_kernel!(dst, Ξ, elements, 2, 1)

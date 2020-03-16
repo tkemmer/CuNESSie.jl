@@ -6,16 +6,10 @@ struct NonlocalSystem{T}
 end
 
 function NonlocalSystem(model::Model{T, Triangle{T}}) where T
-    Ξ = CuArray([
-        [e.center[1] for e in model.elements];
-        [e.center[2] for e in model.elements];
-        [e.center[3] for e in model.elements]
-    ])
-    elements = CuArray(
-        unpack([[e.v1; e.v2; e.v3; e.normal; e.distorig; e.area] for e in model.elements])
-    )
+    cuΞ    = Ξ2device([e.center for e in model.elements])
+    cuelms = elements2device(model.elements)
 
-    A    = NonlocalSystemMatrix(Ξ, elements, length(model.elements), model.params)
+    A    = NonlocalSystemMatrix(cuΞ, cuelms, length(model.elements), model.params)
     umol = model.params.εΩ .\   φmol(model)
     qmol = model.params.εΩ .\ ∂ₙφmol(model)
     b    = NonlocalSystemOutputs(A, umol, qmol)

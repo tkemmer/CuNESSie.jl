@@ -23,11 +23,11 @@ using CuNESSie: CuTriangle, _project2d, _regularyukawapot_double, _regularyukawa
     end
 
     for T in [Float32, Float64]
-        elements = _elem2cuarr(
+        elements = elements2device([
             Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1]),
             Triangle(T[0, 0, 0], T[0, 2, 0], T[0, 0, 2]),
             Triangle(T[1, 0, 0], T[1, 2, 0], T[1, 0, 2])
-        )
+        ])
         refs = CuArray(T[0, 0, 0, .5, .5, 0, .5, .5, 0, 1, 1, 0])
         dst = CuArray{T}(undef, 3 * 6)
 
@@ -143,12 +143,12 @@ end
 
     for T in [Float32, Float64]
         yuk = T(7)
-        Ξ = _pos2cuxi(
+        Ξ = Ξ2device([
             T[0, 0, 0],  T[0, 1, 0],   T[0, 0, 1],
             T[0, -1, 0], T[0, -1, -1],
             T[1, 0, 0],  T[1, 1, 0],   T[1, 0, 1],
             T[1, -1, 0], T[1, -1, -1]
-        )
+        ])
         dst  = CuArray{T}(undef, length(Ξ))
 
         for elem in [
@@ -156,7 +156,8 @@ end
             Triangle(T[0, 0, 0], T[0, 2, 0], T[0, 0, 2]),
             Triangle(T[1, 0, 0], T[1, 2, 0], T[1, 0, 2])
         ]
-            @cuda _regularyukawapot_single_kernel!(dst, Ξ, _elem2cuarr(elem), 10, 1, yuk)
+            @cuda _regularyukawapot_single_kernel!(
+                dst, Ξ, elements2device([elem]), 10, 1, yuk)
             res = Array(dst)
             @test res[1] ≈ Radon.regularyukawacoll(SingleLayer, T[0, 0, 0], elem, yuk)
             @test res[2] ≈ Radon.regularyukawacoll(SingleLayer, T[0, 1, 0], elem, yuk)
@@ -190,12 +191,12 @@ end
 
     for T in [Float32, Float64]
         yuk = T(7)
-        Ξ = _pos2cuxi(
+        Ξ = Ξ2device([
             T[0, 0, 0],  T[0, 1, 0],   T[0, 0, 1],
             T[0, -1, 0], T[0, -1, -1],
             T[1, 0, 0],  T[1, 1, 0],   T[1, 0, 1],
             T[1, -1, 0], T[1, -1, -1]
-        )
+        ])
         dst  = CuArray{T}(undef, length(Ξ))
 
         for elem in [
@@ -203,7 +204,8 @@ end
             Triangle(T[0, 0, 0], T[0, 2, 0], T[0, 0, 2]),
             Triangle(T[1, 0, 0], T[1, 2, 0], T[1, 0, 2])
         ]
-            @cuda _regularyukawapot_double_kernel!(dst, Ξ, _elem2cuarr(elem), 10, 1, yuk)
+            @cuda _regularyukawapot_double_kernel!(
+                dst, Ξ, elements2device([elem]), 10, 1, yuk)
             res = Array(dst)
             @test res[1] ≈ Radon.regularyukawacoll(DoubleLayer, T[0, 0, 0], elem, yuk)
             @test res[2] ≈ Radon.regularyukawacoll(DoubleLayer, T[0, 1, 0], elem, yuk)

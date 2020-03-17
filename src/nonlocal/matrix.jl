@@ -40,9 +40,9 @@ end
 function LinearAlgebra.diag(A::NonlocalSystemMatrix{T}, k::Int = 0) where T
     k != 0 && error("diag not defined for k != 0")
 
-    _config(kernel) = (threads = 256, blocks = cld(A.numelem, 256))
     dst = CuArray{T}(undef, 3 * A.numelem)
-    @cuda config=_config _diag_kernel!(dst, A.Ξ, A.elements, A.numelem, yukawa(A.params))
+    @cuda config=_kcfg(A.numelem) _diag_kernel!(
+        dst, A.Ξ, A.elements, A.numelem, yukawa(A.params))
     Array(dst)
 end
 
@@ -88,22 +88,21 @@ function _mul(
     numelem ::Int,
     params  ::Option{T}
 ) where T
-    _config(kernel) = (threads = 128, blocks = cld(numelem, 128))
+    cfg = _kcfg(numelem)
     yuk = yukawa(params)
 
     ls = CuArray{T}(undef, 3numelem)
-    @cuda config=_config _mul_ls_kernel!(ls, Ξ, elements, x, numelem, params.εΩ/params.ε∞)
+    @cuda config=cfg _mul_ls_kernel!(ls, Ξ, elements, x, numelem, params.εΩ/params.ε∞)
 
     ld = CuArray{T}(undef, 3numelem)
-    @cuda config=_config _mul_ld_kernel!(ld, Ξ, elements, x, numelem)
+    @cuda config=cfg _mul_ld_kernel!(ld, Ξ, elements, x, numelem)
 
     ys = CuArray{T}(undef, numelem)
-    @cuda config=_config _mul_ys_kernel!(ys, Ξ, elements, x, numelem,
+    @cuda config=cfg _mul_ys_kernel!(ys, Ξ, elements, x, numelem,
         params.εΩ * (1/params.ε∞ - 1/params.εΣ), yuk)
 
     yd = CuArray{T}(undef, numelem)
-    @cuda config=_config _mul_yd_kernel!(yd, Ξ, elements, x, numelem,
-        params.ε∞ / params.εΣ, yuk)
+    @cuda config=cfg _mul_yd_kernel!(yd, Ξ, elements, x, numelem, params.ε∞/params.εΣ, yuk)
 
     [
         T(2π) .* x[1:numelem] .+ ls[1:numelem] .+ ld[1:numelem] .+ ys .+ yd;

@@ -10,16 +10,16 @@ function NonlocalSystemOutputs(
     qmol::Vector{T}
 ) where T
     yuk = yukawa(A.params)
-    _config(kernel) = (threads = 128, blocks = cld(A.numelem, 128))
+    cfg = _kcfg(A.numelem)
 
     cux = CuArray(umol)
     ks  = CuArray{T}(undef, A.numelem)
-    @cuda config=_config _rhs_k_kernel!(ks, A.elements, A.Ξ, cux, A.numelem,
+    @cuda config=cfg _rhs_k_kernel!(ks, A.elements, A.Ξ, cux, A.numelem,
         one(yuk) - (A.params.εΩ / A.params.εΣ), yuk)
 
     cux .= CuArray(qmol)
     vs  = CuArray{T}(undef, A.numelem)
-    @cuda config=_config _rhs_v_kernel!(vs, A.elements, A.Ξ, cux, A.numelem,
+    @cuda config=cfg _rhs_v_kernel!(vs, A.elements, A.Ξ, cux, A.numelem,
         A.params.εΩ * (one(yuk)/A.params.εΣ - one(yuk)/A.params.ε∞),
         A.params.εΩ / A.params.ε∞,
         yuk

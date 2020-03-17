@@ -21,6 +21,7 @@ export CuPosition, CuTriangle, Ξ2device, elements2device,
 include("nonlocal/matrix.jl")
 include("nonlocal/rhs.jl")
 include("nonlocal/solver.jl")
-export NonlocalSystem, NonlocalSystemMatrix, NonlocalSystemOutputs, solve
+include("nonlocal/post.jl")
+export NonlocalSystem, NonlocalSystemMatrix, NonlocalSystemOutputs, rfenergy, solve
 
 end # module

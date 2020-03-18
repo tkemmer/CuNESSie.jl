@@ -55,7 +55,7 @@ end
     sn = yuk * rn
 
     rn < _etol(rn) ?
-        zero(rn) : sn >= 0.1 ?
+        yuk * yuk / T(3.4641016151377544) : sn >= 0.1 ?
         (one(rn) - (one(rn) + sn) * CUDAnative.exp(-sn)) * cs / rn / rn / rn :
         _regularyukawapot_double_series(sn) * cs / rn / rn / rn
 end

@@ -1,3 +1,19 @@
+for T in [:Float64, :Float32]
+    varname = Symbol("_radonpts_", T)
+    @eval begin
+        const $(varname) = (
+            num = 7,
+            x = $(T).((1/3, (6+√15)/21, (9-2*√15)/21, (6+√15)/21,
+                (6-√15)/21, (9+2*√15)/21, (6-√15)/21)),
+            y = $(T).((1/3, (9-2*√15)/21, (6+√15)/21, (6+√15)/21,
+                (9+2*√15)/21, (6-√15)/21, (6-√15)/21)),
+            w = $(T).((9/80, (155+√15)/2400, (155+√15)/2400, (155+√15)/2400,
+                (155-√15)/2400, (155-√15)/2400, (155-√15)/2400))
+        )
+        _radonpoints(::$(T)) = $(varname)
+    end
+end
+
 @inline function _project2d(
     elem::CuTriangle{T},
     rx  ::T,
@@ -77,32 +93,17 @@ function regularyukawapot_single(
     elem::CuTriangle{T},
     yuk ::T
 ) where T
-    unit = one(yuk)
-    s15  = _sqrt(unit * 15)
-    pot  = _regularyukawapot_single
+    pts = _radonpoints(yuk)
+    pot = _regularyukawapot_single
 
     val = zero(yuk)
-    val = CUDAnative.fma(
-        pot(_norm(_refside(ξ, elem, unit/3, unit/3)), yuk), unit * 9 / 80, val
-    )
-    val = CUDAnative.fma(
-        pot(_norm(_refside(ξ, elem, (6+s15)/21, (9-2*s15)/21)), yuk), (155 + s15)/2400, val
-    )
-    val = CUDAnative.fma(
-        pot(_norm(_refside(ξ, elem, (9-2*s15)/21, (6+s15)/21)), yuk), (155 + s15)/2400,val
-    )
-    val = CUDAnative.fma(
-        pot(_norm(_refside(ξ, elem, (6+s15)/21, (6+s15)/21)), yuk), (155 + s15)/2400, val
-    )
-    val = CUDAnative.fma(
-        pot(_norm(_refside(ξ, elem, (6-s15)/21, (9+2*s15)/21)), yuk), (155 - s15)/2400, val
-    )
-    val = CUDAnative.fma(
-        pot(_norm(_refside(ξ, elem, (9+2*s15)/21, (6-s15)/21)), yuk), (155 - s15)/2400, val
-    )
-    val = CUDAnative.fma(
-        pot(_norm(_refside(ξ, elem, (6-s15)/21, (6-s15)/21)), yuk), (155 - s15)/2400, val
-    )
+    val = CUDAnative.fma(pot(_norm(_refside(ξ, elem, pts.x[1], pts.y[1])), yuk), pts.w[1], val)
+    val = CUDAnative.fma(pot(_norm(_refside(ξ, elem, pts.x[2], pts.y[2])), yuk), pts.w[2], val)
+    val = CUDAnative.fma(pot(_norm(_refside(ξ, elem, pts.x[3], pts.y[3])), yuk), pts.w[3], val)
+    val = CUDAnative.fma(pot(_norm(_refside(ξ, elem, pts.x[4], pts.y[4])), yuk), pts.w[4], val)
+    val = CUDAnative.fma(pot(_norm(_refside(ξ, elem, pts.x[5], pts.y[5])), yuk), pts.w[5], val)
+    val = CUDAnative.fma(pot(_norm(_refside(ξ, elem, pts.x[6], pts.y[6])), yuk), pts.w[6], val)
+    val = CUDAnative.fma(pot(_norm(_refside(ξ, elem, pts.x[7], pts.y[7])), yuk), pts.w[7], val)
     val * 2 * elem.area
 end
 
@@ -111,38 +112,17 @@ function regularyukawapot_double(
     elem::CuTriangle{T},
     yuk ::T
 ) where T
-    unit = one(yuk)
-    s15  = _sqrt(unit * 15)
-    pot  = _regularyukawapot_double
+    pts = _radonpoints(yuk)
+    pot = _regularyukawapot_double
+    nd  = ref -> (_norm(ref), _dot(ref, elem.normal))
 
     val = zero(yuk)
-    ref = _refside(ξ, elem, unit/3, unit/3)
-    val = CUDAnative.fma(
-        pot(_norm(ref), _dot(ref, elem.normal), yuk), unit * 9 / 80, val
-    )
-    ref = _refside(ξ, elem, (6+s15)/21, (9-2*s15)/21)
-    val = CUDAnative.fma(
-        pot(_norm(ref), _dot(ref, elem.normal), yuk), (155 + s15)/2400, val
-    )
-    ref = _refside(ξ, elem, (9-2*s15)/21, (6+s15)/21)
-    val = CUDAnative.fma(
-        pot(_norm(ref), _dot(ref, elem.normal), yuk), (155 + s15)/2400, val
-    )
-    ref = _refside(ξ, elem, (6+s15)/21, (6+s15)/21)
-    val = CUDAnative.fma(
-        pot(_norm(ref), _dot(ref, elem.normal), yuk), (155 + s15)/2400, val
-    )
-    ref = _refside(ξ, elem, (6-s15)/21, (9+2*s15)/21)
-    val = CUDAnative.fma(
-        pot(_norm(ref), _dot(ref, elem.normal), yuk), (155 - s15)/2400, val
-    )
-    ref = _refside(ξ, elem, (9+2*s15)/21, (6-s15)/21)
-    val = CUDAnative.fma(
-        pot(_norm(ref), _dot(ref, elem.normal), yuk), (155 - s15)/2400, val
-    )
-    ref = _refside(ξ, elem, (6-s15)/21, (6-s15)/21)
-    val = CUDAnative.fma(
-        pot(_norm(ref), _dot(ref, elem.normal), yuk), (155 - s15)/2400, val
-    )
+    val = CUDAnative.fma(pot(nd(_refside(ξ, elem, pts.x[1], pts.y[1]))..., yuk), pts.w[1], val)
+    val = CUDAnative.fma(pot(nd(_refside(ξ, elem, pts.x[2], pts.y[2]))..., yuk), pts.w[2], val)
+    val = CUDAnative.fma(pot(nd(_refside(ξ, elem, pts.x[3], pts.y[3]))..., yuk), pts.w[3], val)
+    val = CUDAnative.fma(pot(nd(_refside(ξ, elem, pts.x[4], pts.y[4]))..., yuk), pts.w[4], val)
+    val = CUDAnative.fma(pot(nd(_refside(ξ, elem, pts.x[5], pts.y[5]))..., yuk), pts.w[5], val)
+    val = CUDAnative.fma(pot(nd(_refside(ξ, elem, pts.x[6], pts.y[6]))..., yuk), pts.w[6], val)
+    val = CUDAnative.fma(pot(nd(_refside(ξ, elem, pts.x[7], pts.y[7]))..., yuk), pts.w[7], val)
     val * 2 * elem.area
 end

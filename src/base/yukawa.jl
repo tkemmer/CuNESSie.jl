@@ -48,9 +48,9 @@ end
 end
 
 @inline function _regularyukawapot_single(rn ::T, yuk::T) where T
+    rn < _etol(rn) && return -yuk
     sn = yuk * rn
-    rn < _etol(rn) ?
-        -yuk : rn >= 0.1 ?
+    rn ≥ 0.1 ?
         CUDAnative.expm1(-sn) / rn :
         _regularyukawapot_single_series(sn) / rn
 end
@@ -68,10 +68,9 @@ function _regularyukawapot_single_series(sn::T) where T
 end
 
 @inline function _regularyukawapot_double(rn ::T, cs ::T, yuk::T) where T
+    rn < _etol(rn) && return yuk * yuk / T(3.4641016151377544)
     sn = yuk * rn
-
-    rn < _etol(rn) ?
-        yuk * yuk / T(3.4641016151377544) : sn >= 0.1 ?
+    sn ≥ 0.1 ?
         (one(rn) - (one(rn) + sn) * CUDAnative.exp(-sn)) * cs / rn / rn / rn :
         _regularyukawapot_double_series(sn) * cs / rn / rn / rn
 end

@@ -22,12 +22,12 @@ using LinearAlgebra: ×
 end
 
 @testset "_cos" begin
-    function _cos_kernel!(dst::CuDeviceVector{T}, vals::CuDeviceVector{T}, n::Int) where T
-        u = CuPosition(vals, 1, n)
+    function _cos_kernel!(dst::CuDeviceVector{T}, vals::CuDeviceVector{T}) where T
+        u = CuPosition(vals, 1)
         un = _norm(u)
         dst[1] = _cos(u, un, u, un)
         for i in 0:5
-            v = CuPosition(vals, i + 2, n)
+            v = CuPosition(vals, i + 2)
             vn = _norm(v)
             dst[2i + 2] = _cos(u, un, v, vn)
             dst[2i + 3] = _cos(v, vn, u, un)
@@ -43,7 +43,7 @@ end
         ])
         dst  = CuArray{T}(undef, 13)
 
-        @cuda _cos_kernel!(dst, vals, 7)
+        @cuda _cos_kernel!(dst, vals)
         res = Array(dst)
         @test res[1] ≈ one(T)
         @test res[2] ≈ zero(T)
@@ -62,11 +62,11 @@ end
 end
 
 @testset "_cross" begin
-    function _cross_kernel!(dst::CuDeviceVector{T}, vals::CuDeviceVector{T}, n::Int) where T
-        v1 = CuPosition(vals, 1, n)
-        v2 = CuPosition(vals, 2, n)
-        v3 = CuPosition(vals, 3, n)
-        v4 = CuPosition(vals, 4, n)
+    function _cross_kernel!(dst::CuDeviceVector{T}, vals::CuDeviceVector{T}) where T
+        v1 = CuPosition(vals, 1)
+        v2 = CuPosition(vals, 2)
+        v3 = CuPosition(vals, 3)
+        v4 = CuPosition(vals, 4)
         dst[1], dst[2], dst[3] = _cross(v1, v2)
         dst[4], dst[5], dst[6] = _cross(v2, v1)
         dst[7], dst[8], dst[9] = _cross(v1, v3)
@@ -80,7 +80,7 @@ end
         vals = Ξ2device([T[1, 2, 3], T[4, 6, 8], T[-1, -1, -1], T[0, 0, 0]])
         dst  = CuArray{T}(undef, 3 * 6)
 
-        @cuda _cross_kernel!(dst, vals, 4)
+        @cuda _cross_kernel!(dst, vals)
         res = Array(dst)
         @test res[1:3] ≈ T[1, 2, 3] × T[4, 6, 8]
         @test res[4:6] ≈ T[4, 6, 8] × T[1, 2, 3]
@@ -92,11 +92,11 @@ end
 end
 
 @testset "_dot" begin
-    function _dot_kernel!(dst::CuDeviceVector{T}, vals::CuDeviceVector{T}, n::Int) where T
-        v1 = CuPosition(vals, 1, n)
-        v2 = CuPosition(vals, 2, n)
-        v3 = CuPosition(vals, 3, n)
-        v4 = CuPosition(vals, 4, n)
+    function _dot_kernel!(dst::CuDeviceVector{T}, vals::CuDeviceVector{T}) where T
+        v1 = CuPosition(vals, 1)
+        v2 = CuPosition(vals, 2)
+        v3 = CuPosition(vals, 3)
+        v4 = CuPosition(vals, 4)
         dst[1] = _dot(v1, v2)
         dst[2] = _dot(v2, v1)
         dst[3] = _dot(v1, v3)
@@ -110,18 +110,18 @@ end
         vals = Ξ2device([T[1, 2, 3], T[4, 6, 8], T[-1, -1, -1], T[0, 0, 0]])
         dst  = CuArray{T}(undef, 6)
 
-        @cuda _dot_kernel!(dst, vals, 4)
+        @cuda _dot_kernel!(dst, vals)
         res = Array(dst)
         @test res ≈ T[40, 40, -6, -6, 0, 0]
     end
 end
 
 @testset "_norm" begin
-    function _norm_kernel!(dst::CuDeviceVector{T}, vals::CuDeviceVector{T}, n::Int) where T
-        dst[1] = _norm(CuPosition(vals, 1, n))
-        dst[2] = _norm(CuPosition(vals, 2, n))
-        dst[3] = _norm(CuPosition(vals, 3, n))
-        dst[4] = _norm(CuPosition(vals, 4, n))
+    function _norm_kernel!(dst::CuDeviceVector{T}, vals::CuDeviceVector{T}) where T
+        dst[1] = _norm(CuPosition(vals, 1))
+        dst[2] = _norm(CuPosition(vals, 2))
+        dst[3] = _norm(CuPosition(vals, 3))
+        dst[4] = _norm(CuPosition(vals, 4))
         nothing
     end
 
@@ -129,7 +129,7 @@ end
         vals = Ξ2device([T[1, 2, 3], T[4, 6, 8], T[-1, -1, -1], T[0, 0, 0]])
         dst  = CuArray{T}(undef, 4)
 
-        @cuda _norm_kernel!(dst, vals, 4)
+        @cuda _norm_kernel!(dst, vals)
         res = Array(dst)
         @test res ≈ T[√14, √116, √3, 0]
     end
@@ -157,13 +157,12 @@ end
     function _smul_kernel!(
         dst::CuDeviceVector{T},
         vals::CuDeviceVector{T},
-        s::T,
-        n::Int
+        s::T
     ) where T
-        dst[1], dst[2], dst[3] = _smul(CuPosition(vals, 1, n), s)
-        dst[4], dst[5], dst[6] = _smul(CuPosition(vals, 2, n), s)
-        dst[7], dst[8], dst[9] = _smul(CuPosition(vals, 3, n), s)
-        dst[10], dst[11], dst[12] = _smul(CuPosition(vals, 4, n), s)
+        dst[1], dst[2], dst[3] = _smul(CuPosition(vals, 1), s)
+        dst[4], dst[5], dst[6] = _smul(CuPosition(vals, 2), s)
+        dst[7], dst[8], dst[9] = _smul(CuPosition(vals, 3), s)
+        dst[10], dst[11], dst[12] = _smul(CuPosition(vals, 4), s)
         nothing
     end
 
@@ -171,14 +170,14 @@ end
         vals = Ξ2device([T[1, 2, 3], T[4, 6, 8], T[-1, -1, -1], T[0, 0, 0]])
         dst  = CuArray{T}(undef, 12)
 
-        @cuda _smul_kernel!(dst, vals, T(2), 4)
+        @cuda _smul_kernel!(dst, vals, T(2))
         res = Array(dst)
         @test res[1:3] ≈ T[2, 4, 6]
         @test res[4:6] ≈ T[8, 12, 16]
         @test res[7:9] ≈ -T[2, 2, 2]
         @test res[10:12] ≈ T[0, 0, 0]
 
-        @cuda _smul_kernel!(dst, vals, T(-2), 4)
+        @cuda _smul_kernel!(dst, vals, T(-2))
         res = Array(dst)
         @test res[1:3] ≈ -T[2, 4, 6]
         @test res[4:6] ≈ -T[8, 12, 16]
@@ -188,11 +187,11 @@ end
 end
 
 @testset "_sub" begin
-    function _sub_kernel!(dst::CuDeviceVector{T}, vals::CuDeviceVector{T}, n::Int) where T
-        v1 = CuPosition(vals, 1, n)
-        v2 = CuPosition(vals, 2, n)
-        v3 = CuPosition(vals, 3, n)
-        v4 = CuPosition(vals, 4, n)
+    function _sub_kernel!(dst::CuDeviceVector{T}, vals::CuDeviceVector{T}) where T
+        v1 = CuPosition(vals, 1)
+        v2 = CuPosition(vals, 2)
+        v3 = CuPosition(vals, 3)
+        v4 = CuPosition(vals, 4)
         dst[1], dst[2], dst[3] = _sub(v1, v2)
         dst[4], dst[5], dst[6] = _sub(v2, v1)
         dst[7], dst[8], dst[9] = _sub(v1, v3)
@@ -206,7 +205,7 @@ end
         vals = Ξ2device([T[1, 2, 3], T[4, 6, 8], T[-1, -1, -1], T[0, 0, 0]])
         dst  = CuArray{T}(undef, 3 * 6)
 
-        @cuda _sub_kernel!(dst, vals, 4)
+        @cuda _sub_kernel!(dst, vals)
         res = Array(dst)
         @test res[1:3] ≈ T[-3, -4, -5]
         @test res[4:6] ≈ T[3, 4, 5]

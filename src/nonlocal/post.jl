@@ -22,7 +22,7 @@ function _rfenergy_kernel!(
     i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
     i > numΞ && return
 
-    ξ = CuPosition(Ξ, i, numΞ)
+    ξ = CuPosition(Ξ, i)
     val = T(0)
     for j in 1:numelem
         elem = CuTriangle(elements, j)

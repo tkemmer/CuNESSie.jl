@@ -58,7 +58,7 @@ function _diag_kernel!(
         return nothing
     end
 
-    ξ = CuPosition(Ξ, i, numelem)
+    ξ = CuPosition(Ξ, i)
     elem = CuTriangle(elements, i)
     ld = laplacepot_double(ξ, elem)
     dst[i]            = T(2π) - regularyukawapot_double(ξ, elem, yuk) - ld
@@ -122,7 +122,7 @@ function _mul_ls_kernel!(
     i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
     i > numelem && return
 
-    ξ = CuPosition(Ξ, i, numelem)
+    ξ = CuPosition(Ξ, i)
     val = T(0)
     for j in 1:numelem
         elem = CuTriangle(elements, j)
@@ -144,7 +144,7 @@ function _mul_ld_kernel!(
     i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
     i > numelem && return
 
-    ξ = CuPosition(Ξ, i, numelem)
+    ξ = CuPosition(Ξ, i)
     val12 = T(0)
     val3  = T(0)
     for j in 1:numelem
@@ -172,7 +172,7 @@ function _mul_ys_kernel!(
     i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
     i > numelem && return
 
-    ξ = CuPosition(Ξ, i, numelem)
+    ξ = CuPosition(Ξ, i)
     val = T(0)
     for j in 1:numelem
         elem = CuTriangle(elements, j)
@@ -194,7 +194,7 @@ function _mul_yd_kernel!(
     i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
     i > numelem && return
 
-    ξ = CuPosition(Ξ, i, numelem)
+    ξ = CuPosition(Ξ, i)
     val1 = T(0)
     val2 = T(0)
     for j in 1:numelem

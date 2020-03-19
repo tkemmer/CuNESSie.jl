@@ -135,7 +135,7 @@ end
     ) where T
         elem = CuTriangle(elements, eidx)
         for ξidx in 1:numξ
-            dst[ξidx] = regularyukawapot_single(CuPosition(Ξ, ξidx, numξ), elem, yuk)
+            dst[ξidx] = regularyukawapot_single(CuPosition(Ξ, ξidx), elem, yuk)
         end
         nothing
     end
@@ -183,7 +183,7 @@ end
     ) where T
         elem = CuTriangle(elements, eidx)
         for ξidx in 1:numξ
-            dst[ξidx] = regularyukawapot_double(CuPosition(Ξ, ξidx, numξ), elem, yuk)
+            dst[ξidx] = regularyukawapot_double(CuPosition(Ξ, ξidx), elem, yuk)
         end
         nothing
     end

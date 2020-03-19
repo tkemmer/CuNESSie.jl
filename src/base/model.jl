@@ -2,9 +2,9 @@ const CuPosition{T} = NamedTuple{(:x, :y, :z), NTuple{3, T}}
 
 @inline function CuPosition(
     vec::CuDeviceVector{T},
-    idx::Int,
-    stride::Int
+    idx::Int
 ) where T
+    stride = fld(size(vec, 1), 3)
     (x = vec[idx], y = vec[stride + idx], z = vec[2stride + idx])
 end
 

@@ -25,7 +25,7 @@ function _rfenergy_kernel!(
     ξ = CuPosition(Ξ, i, numΞ)
     val = T(0)
     for j in 1:numelem
-        elem = CuTriangle(elements, (j - 1) * 14 + 1)
+        elem = CuTriangle(elements, j)
         val = CUDAnative.fma(-laplacepot_double(ξ, elem), x[j], val)
         val = CUDAnative.fma(laplacepot_single(ξ, elem), x[j + numelem], val)
     end

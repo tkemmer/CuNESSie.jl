@@ -59,7 +59,7 @@ function _diag_kernel!(
     end
 
     ξ = CuPosition(Ξ, i, numelem)
-    elem = CuTriangle(elements, (i - 1) * 14 + 1)
+    elem = CuTriangle(elements, i)
     ld = laplacepot_double(ξ, elem)
     dst[i]            = T(2π) - regularyukawapot_double(ξ, elem, yuk) - ld
     dst[i + numelem]  = laplacepot_single(ξ, elem)
@@ -125,7 +125,7 @@ function _mul_ls_kernel!(
     ξ = CuPosition(Ξ, i, numelem)
     val = T(0)
     for j in 1:numelem
-        elem = CuTriangle(elements, (j - 1) * 14 + 1)
+        elem = CuTriangle(elements, j)
         val = CUDAnative.fma(laplacepot_single(ξ, elem), x[j + numelem], val)
     end
     dst[i] = pref * val
@@ -148,7 +148,7 @@ function _mul_ld_kernel!(
     val12 = T(0)
     val3  = T(0)
     for j in 1:numelem
-        elem = CuTriangle(elements, (j - 1) * 14 + 1)
+        elem = CuTriangle(elements, j)
         ld = laplacepot_double(ξ, elem)
 
         val12 = CUDAnative.fma(ld, x[j], val12)
@@ -175,7 +175,7 @@ function _mul_ys_kernel!(
     ξ = CuPosition(Ξ, i, numelem)
     val = T(0)
     for j in 1:numelem
-        elem = CuTriangle(elements, (j - 1) * 14 + 1)
+        elem = CuTriangle(elements, j)
         val = CUDAnative.fma(regularyukawapot_single(ξ, elem, yuk), x[j + numelem], val)
     end
     dst[i] = pref * val
@@ -198,7 +198,7 @@ function _mul_yd_kernel!(
     val1 = T(0)
     val2 = T(0)
     for j in 1:numelem
-        elem = CuTriangle(elements, (j - 1) * 14 + 1)
+        elem = CuTriangle(elements, j)
         yd = regularyukawapot_double(ξ, elem, yuk)
 
         val1 = CUDAnative.fma(yd, x[j], val1)

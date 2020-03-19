@@ -17,6 +17,7 @@ const CuTriangle{T} = NamedTuple{
     vec::CuDeviceVector{T},
     idx::Int
 ) where T
+    idx = (idx - 1) * 14 + 1
     (
         v1 = (x = vec[idx], y = vec[idx + 1], z = vec[idx + 2]),
         v2 = (x = vec[idx + 3], y = vec[idx + 4], z = vec[idx + 5]),

@@ -59,7 +59,7 @@ function _rhs_k_kernel!(
     ξ = CuPosition(Ξ, i, numelem)
     val = zero(Ξ[1])
     for j in 1:numelem
-        elem = CuTriangle(elements, (j - 1) * 14 + 1)
+        elem = CuTriangle(elements, j)
         val = CUDAnative.fma(
             CUDAnative.fma(
                 regularyukawapot_double(ξ, elem, yuk),
@@ -92,7 +92,7 @@ function _rhs_v_kernel!(
     ξ = CuPosition(Ξ, i, numelem)
     val = zero(Ξ[1])
     for j in 1:numelem
-        elem = CuTriangle(elements, (j - 1) * 14 + 1)
+        elem = CuTriangle(elements, j)
         val = CUDAnative.fma(
             CUDAnative.fma(
                 regularyukawapot_single(ξ, elem, yuk),

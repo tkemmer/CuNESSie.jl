@@ -39,7 +39,7 @@ using CuNESSie: _project2d, _regularyukawapot_double, _regularyukawapot_single
         @test res[13:15] ≈ T[0, 0, 1]
         @test res[16:18] ≈ T[0, 1, 0]
 
-        @cuda _project2d_kernel!(dst, elements, refs, 15, 6)
+        @cuda _project2d_kernel!(dst, elements, refs, 2, 6)
         res = Array(dst)
         @test res[1:3] ≈ T[0, 0, 0]
         @test res[4:6] ≈ T[0, 0, 1]
@@ -48,7 +48,7 @@ using CuNESSie: _project2d, _regularyukawapot_double, _regularyukawapot_single
         @test res[13:15] ≈ T[0, 0, 2]
         @test res[16:18] ≈ T[0, 2, 0]
 
-        @cuda _project2d_kernel!(dst, elements, refs, 29, 6)
+        @cuda _project2d_kernel!(dst, elements, refs, 3, 6)
         res = Array(dst)
         @test res[1:3] ≈ T[1, 0, 0]
         @test res[4:6] ≈ T[1, 0, 1]

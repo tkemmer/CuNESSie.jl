@@ -51,7 +51,7 @@ end
 @inline Base.:*(
     A::LaplacePotentialMatrix{T, DoubleLayer},
     x::AbstractArray{T, 1}
-) where T = _mul(A, x, _laplace_single_mul_kernel!)
+) where T = _mul(A, x, _laplace_double_mul_kernel!)
 
 function _mul(A::LaplacePotentialMatrix{T}, x::AbstractArray{T, 1}, pot::F) where {T, F <: Function}
     dst = CuArray{T}(undef, size(A, 1))

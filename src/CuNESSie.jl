@@ -21,7 +21,8 @@ export CuPosition, CuTriangle, Ξ2device, elements2device,
 # common host code
 include("host/matrix.jl")
 include("host/common.jl")
-export LaplacePotentialMatrix
+include("host/local.jl")
+export LaplacePotentialMatrix, LocalSystem, LocalSystemMatrix, solve
 
 # nonlocal BEM
 include("nonlocal/matrix.jl")

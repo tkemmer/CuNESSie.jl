@@ -1,3 +1,33 @@
+function _diag_kernel!(
+    dst     ::CuDeviceVector{T},
+    Ξ       ::CuDeviceVector{T},
+    elements::CuDeviceVector{T},
+    dims    ::Int,
+    pot     ::F
+) where {T, F <: Function}
+    i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
+    i > dims && return
+
+    ξ      = CuPosition(Ξ, i)
+    elem   = CuTriangle(elements, i)
+    dst[i] = pot(ξ, elem)
+    nothing
+end
+
+@inline _laplace_single_diag_kernel!(
+    dst     ::CuDeviceVector{T},
+    Ξ       ::CuDeviceVector{T},
+    elements::CuDeviceVector{T},
+    dims    ::Int
+) where T = _diag_kernel!(dst, Ξ, elements, dims, laplacepot_single)
+
+@inline _laplace_double_diag_kernel!(
+    dst     ::CuDeviceVector{T},
+    Ξ       ::CuDeviceVector{T},
+    elements::CuDeviceVector{T},
+    dims    ::Int
+) where T = _diag_kernel!(dst, Ξ, elements, dims, laplacepot_double)
+
 function _mul_kernel!(
     dst     ::CuDeviceVector{T},
     Ξ       ::CuDeviceVector{T},

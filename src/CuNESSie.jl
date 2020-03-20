@@ -9,7 +9,6 @@ using NESSie: yukawa
 using Preconditioners
 
 # device code
-include("device/common.jl")
 include("device/model.jl")
 include("device/math.jl")
 include("device/matrix.jl")

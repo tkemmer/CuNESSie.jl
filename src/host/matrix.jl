@@ -4,6 +4,12 @@ struct LaplacePotentialMatrix{T, L <: PotentialType} <: AbstractArray{T, 2}
     elements::CuVector{T}
 end
 
+@inline LaplacePotentialMatrix{L}(
+    dims    ::NTuple{2, Int},
+    Ξ       ::CuVector{T},
+    elements::CuVector{T}
+) where {T, L <: PotentialType} = LaplacePotentialMatrix{T, L}(dims, Ξ, elements)
+
 @inline Base.size(A::LaplacePotentialMatrix{T}) where T = A.dims
 
 @inline Base.getindex(

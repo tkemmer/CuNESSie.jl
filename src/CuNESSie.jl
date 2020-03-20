@@ -12,6 +12,7 @@ using Preconditioners
 include("device/common.jl")
 include("device/model.jl")
 include("device/math.jl")
+include("device/matrix.jl")
 include("device/laplace.jl")
 include("device/yukawa.jl")
 export CuPosition, CuTriangle, Ξ2device, elements2device,
@@ -20,6 +21,8 @@ export CuPosition, CuTriangle, Ξ2device, elements2device,
 
 # common host code
 include("host/common.jl")
+include("host/matrix.jl")
+export LaplacePotentialMatrix
 
 # nonlocal BEM
 include("nonlocal/matrix.jl")

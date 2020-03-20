@@ -8,11 +8,11 @@ using NESSie
 using NESSie: yukawa
 using Preconditioners
 
-include("base/common.jl")
-include("base/model.jl")
-include("base/math.jl")
-include("base/laplace.jl")
-include("base/yukawa.jl")
+include("device/common.jl")
+include("device/model.jl")
+include("device/math.jl")
+include("device/laplace.jl")
+include("device/yukawa.jl")
 export CuPosition, CuTriangle, Ξ2device, elements2device,
     laplacepot_single, laplacepot_double,
     regularyukawapot_single, regularyukawapot_double

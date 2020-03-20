@@ -6,10 +6,10 @@ using ImplicitArrays
 using Test
 
 @testset "CuNESSie.jl" begin
-    @testset "base" begin
-        @testset "math.jl" begin include("base/math.jl") end
-        @testset "laplace.jl" begin include("base/laplace.jl") end
-        @testset "yukawa.jl" begin include("base/yukawa.jl") end
+    @testset "device" begin
+        @testset "math.jl" begin include("device/math.jl") end
+        @testset "laplace.jl" begin include("device/laplace.jl") end
+        @testset "yukawa.jl" begin include("device/yukawa.jl") end
     end
 
     @testset "nonlocal" begin

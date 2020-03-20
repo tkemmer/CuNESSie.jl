@@ -1,4 +1,35 @@
-struct LaplacePotentialMatrix{T, L <: PotentialType} <: AbstractArray{T, 2}
+abstract type PotentialMatrix{T} <: AbstractArray{T, 2} end
+
+@inline Base.getindex(
+    A::PotentialMatrix{T},
+     ::Int
+) where T = error("getindex not defined for", typeof(A))
+
+@inline Base.setindex!(
+    A::PotentialMatrix{T},
+     ::Any,
+     ::Int
+) where T = error("setindex! not defined for", typeof(A))
+
+@inline Base.show(
+    io::IO,
+      ::MIME"text/plain",
+    A ::PotentialMatrix{T}
+) where T = Base.show(io, A)
+
+
+@inline function Base.show(io::IO, A::PotentialMatrix{T}) where {T}
+    d = join(size(A), "×")
+    print(io, "$d ", typeof(A))
+end
+
+@inline LinearAlgebra.mul!(
+    Y::AbstractArray{T, 1},
+    A::PotentialMatrix{T},
+    x::AbstractArray{T, 1}
+) where T = Y .= A * x
+
+struct LaplacePotentialMatrix{T, L <: PotentialType} <: PotentialMatrix{T}
     dims    ::NTuple{2, Int}
     Ξ       ::CuVector{T}
     elements::CuVector{T}
@@ -11,35 +42,6 @@ end
 ) where {T, L <: PotentialType} = LaplacePotentialMatrix{T, L}(dims, Ξ, elements)
 
 @inline Base.size(A::LaplacePotentialMatrix{T}) where T = A.dims
-
-@inline Base.getindex(
-    A::LaplacePotentialMatrix{T},
-     ::Int
-) where T = error("getindex not defined for", typeof(A))
-
-@inline Base.setindex!(
-    A::LaplacePotentialMatrix{T},
-     ::Any,
-     ::Int
-) where T = error("setindex! not defined for", typeof(A))
-
-@inline Base.show(
-    io::IO,
-      ::MIME"text/plain",
-    A ::LaplacePotentialMatrix{T}
-) where T = Base.show(io, A)
-
-
-@inline function Base.show(io::IO, A::LaplacePotentialMatrix{T, L}) where {T, L}
-    d = join(size(A), "×")
-    print(io, "$d LaplacePotentialMatrix{$T, $L}")
-end
-
-@inline LinearAlgebra.mul!(
-    Y::AbstractArray{T, 1},
-    A::LaplacePotentialMatrix{T},
-    x::AbstractArray{T, 1}
-) where T = Y .= A * x
 
 @inline Base.:*(
     A::LaplacePotentialMatrix{T, SingleLayer},

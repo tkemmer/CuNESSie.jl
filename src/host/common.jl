@@ -7,6 +7,7 @@ const _etol_f32 = 3.45f-4
 @inline _etol(::Type{Float32}) = _etol_f32
 
 @inline _kcfg(n::Int) = _ -> (threads = 128, blocks = cld(n, 128))
+@inline _kcfg(A::PotentialMatrix{T}) where T = _kcfg(size(A, 1))
 
 function _solve_linear_system(A::AbstractArray{T, 2}, b::AbstractArray{T, 1}) where T
     gmres(A, b,

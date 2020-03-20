@@ -54,8 +54,7 @@ end
 ) where T = _mul(A, x, _laplace_single_mul_kernel!)
 
 function _mul(A::LaplacePotentialMatrix{T}, x::AbstractArray{T, 1}, pot::F) where {T, F <: Function}
-    cfg = _kcfg(size(A, 2))
     dst = CuArray{T}(undef, size(A, 1))
-    @cuda config=cfg pot(dst, A.Ξ, A.elements, CuArray(x), size(A))
+    @cuda config=_kcfg(A) pot(dst, A.Ξ, A.elements, CuArray(x), size(A))
     Array(dst)
 end

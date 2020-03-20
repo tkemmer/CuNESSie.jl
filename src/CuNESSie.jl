@@ -19,8 +19,8 @@ export CuPosition, CuTriangle, Ξ2device, elements2device,
     regularyukawapot_single, regularyukawapot_double
 
 # common host code
-include("host/common.jl")
 include("host/matrix.jl")
+include("host/common.jl")
 export LaplacePotentialMatrix
 
 # nonlocal BEM

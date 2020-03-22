@@ -24,13 +24,13 @@ include("host/model.jl")
 include("host/matrix.jl")
 include("host/common.jl")
 include("host/local.jl")
-export LaplacePotentialMatrix, LocalSystem, LocalSystemMatrix, solve
+include("host/post.jl")
+export LaplacePotentialMatrix, LocalSystem, LocalSystemMatrix, rfenergy, solve
 
 # nonlocal BEM
 include("nonlocal/matrix.jl")
 include("nonlocal/rhs.jl")
 include("nonlocal/solver.jl")
-include("nonlocal/post.jl")
-export NonlocalSystem, NonlocalSystemMatrix, NonlocalSystemOutputs, rfenergy, solve
+export NonlocalSystem, NonlocalSystemMatrix, NonlocalSystemOutputs, solve
 
 end # module

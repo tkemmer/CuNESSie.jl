@@ -3,17 +3,13 @@ using CuNESSie: _project2d, _regularyukawapot_double, _regularyukawapot_single
 @testset "_project2d" begin
     function  _project2d_kernel!(
         dst     ::CuDeviceVector{T},
-        elements::CuDeviceVector{T},
+        elements::CuTriangleVector{T},
         refs    ::CuDeviceVector{T},
         eidx    ::Int,
         numref  ::Int
     ) where T
         for ridx in 1:numref
-            pr = _project2d(
-                CuTriangle(elements, eidx),
-                refs[(ridx-1) * 2 + 1],
-                refs[(ridx-1) * 2 + 2]
-            )
+            pr = _project2d(elements[eidx], refs[(ridx-1) * 2 + 1], refs[(ridx-1) * 2 + 2])
             dst[(ridx-1) * 3 + 1] = pr[1]
             dst[(ridx-1) * 3 + 2] = pr[2]
             dst[(ridx-1) * 3 + 3] = pr[3]
@@ -22,7 +18,7 @@ using CuNESSie: _project2d, _regularyukawapot_double, _regularyukawapot_single
     end
 
     for T in [Float32, Float64]
-        elements = elements2device([
+        elements = TriangleVector([
             Triangle(T[0, 0, 0], T[0, 1, 0], T[0, 0, 1]),
             Triangle(T[0, 0, 0], T[0, 2, 0], T[0, 0, 2]),
             Triangle(T[1, 0, 0], T[1, 2, 0], T[1, 0, 2])
@@ -127,22 +123,21 @@ end
 @testset "regularyukawapot_single" begin
     function _regularyukawapot_single_kernel!(
         dst      ::CuDeviceVector{T},
-        Ξ        ::CuDeviceVector{T},
-        elements ::CuDeviceVector{T},
-        numξ     ::Int,
+        Ξ        ::CuPositionVector{T},
+        elements ::CuTriangleVector{T},
         eidx     ::Int,
         yuk      ::T
     ) where T
-        elem = CuTriangle(elements, eidx)
-        for ξidx in 1:numξ
-            dst[ξidx] = regularyukawapot_single(CuPosition(Ξ, ξidx), elem, yuk)
+        elem = elements[eidx]
+        for ξidx in 1:length(Ξ)
+            dst[ξidx] = regularyukawapot_single(Ξ[ξidx], elem, yuk)
         end
         nothing
     end
 
     for T in [Float32, Float64]
         yuk = T(7)
-        Ξ = Ξ2device([
+        Ξ = PositionVector([
             T[0, 0, 0],  T[0, 1, 0],   T[0, 0, 1],
             T[0, -1, 0], T[0, -1, -1],
             T[1, 0, 0],  T[1, 1, 0],   T[1, 0, 1],
@@ -156,7 +151,7 @@ end
             Triangle(T[1, 0, 0], T[1, 2, 0], T[1, 0, 2])
         ]
             @cuda _regularyukawapot_single_kernel!(
-                dst, Ξ, elements2device([elem]), 10, 1, yuk)
+                dst, Ξ, TriangleVector([elem]), 1, yuk)
             res = Array(dst)
             @test res[1] ≈ Radon.regularyukawacoll(SingleLayer, T[0, 0, 0], elem, yuk)
             @test res[2] ≈ Radon.regularyukawacoll(SingleLayer, T[0, 1, 0], elem, yuk)
@@ -175,22 +170,21 @@ end
 @testset "regularyukawapot_double" begin
     function _regularyukawapot_double_kernel!(
         dst      ::CuDeviceVector{T},
-        Ξ        ::CuDeviceVector{T},
-        elements ::CuDeviceVector{T},
-        numξ     ::Int,
+        Ξ        ::CuPositionVector{T},
+        elements ::CuTriangleVector{T},
         eidx     ::Int,
         yuk      ::T
     ) where T
-        elem = CuTriangle(elements, eidx)
-        for ξidx in 1:numξ
-            dst[ξidx] = regularyukawapot_double(CuPosition(Ξ, ξidx), elem, yuk)
+        elem = elements[eidx]
+        for ξidx in 1:length(Ξ)
+            dst[ξidx] = regularyukawapot_double(Ξ[ξidx], elem, yuk)
         end
         nothing
     end
 
     for T in [Float32, Float64]
         yuk = T(7)
-        Ξ = Ξ2device([
+        Ξ = PositionVector([
             T[0, 0, 0],  T[0, 1, 0],   T[0, 0, 1],
             T[0, -1, 0], T[0, -1, -1],
             T[1, 0, 0],  T[1, 1, 0],   T[1, 0, 1],
@@ -204,7 +198,7 @@ end
             Triangle(T[1, 0, 0], T[1, 2, 0], T[1, 0, 2])
         ]
             @cuda _regularyukawapot_double_kernel!(
-                dst, Ξ, elements2device([elem]), 10, 1, yuk)
+                dst, Ξ, TriangleVector([elem]), 1, yuk)
             res = Array(dst)
             @test res[1] ≈ Radon.regularyukawacoll(DoubleLayer, T[0, 0, 0], elem, yuk)
             @test res[2] ≈ Radon.regularyukawacoll(DoubleLayer, T[0, 1, 0], elem, yuk)

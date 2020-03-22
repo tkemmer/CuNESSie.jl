@@ -35,8 +35,7 @@ PositionVector(
 @inline Adapt.adapt_storage(
     a::CUDAnative.Adaptor,
     v::PositionVector{T}
-#) where T = convert(CuPositionVector{T}, v)
-) where T = (dim = v.dim, vec = Adapt.adapt_storage(a, v.vec))
+) where T = CuPositionVector(v.dim, Adapt.adapt_storage(a, v.vec))
 
 # deprecated
 @inline function Ξ2device(pos::Vector{Vector{T}}) where T

@@ -9,7 +9,10 @@ const CuPosition{T} = NamedTuple{(:x, :y, :z), NTuple{3, T}}
     (x = vec[idx], y = vec[stride + idx], z = vec[2stride + idx])
 end
 
-const CuPositionVector{T} = NamedTuple{(:dim, :vec), Tuple{Int, CuDeviceVector{T, AS.Global}}}
+struct CuPositionVector{T} <: AbstractArray{T, 1}
+    dim::Int
+    vec::CuDeviceVector{T, AS.Global}
+end
 
 @inline Base.size(v::CuPositionVector{T}) where T = (v.dim,)
 
@@ -22,7 +25,7 @@ const CuPositionVector{T} = NamedTuple{(:dim, :vec), Tuple{Int, CuDeviceVector{T
     v::CuPositionVector{T},
      ::Any,
      ::Int
-) where T = error("setindex! not defined for CuPositionVector{$T}")
+) where T = error("setindex! not defined for ", typeof(v))
 
 const CuTriangle{T} = NamedTuple{
     (:v1, :v2, :v3, :normal, :distorig, :area),

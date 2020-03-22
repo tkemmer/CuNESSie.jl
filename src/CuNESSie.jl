@@ -15,7 +15,7 @@ include("device/math.jl")
 include("device/matrix.jl")
 include("device/laplace.jl")
 include("device/yukawa.jl")
-export CuPosition, CuPositionVector, CuTriangle, CuTriangleVector, Ξ2device, elements2device,
+export CuPosition, CuPositionVector, CuTriangle, CuTriangleVector,
     laplacepot_single, laplacepot_double,
     regularyukawapot_single, regularyukawapot_double
 

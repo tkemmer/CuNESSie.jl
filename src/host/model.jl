@@ -32,10 +32,37 @@ PositionVector(
     v::PositionVector{T}
 ) where T = CuPositionVector(v.dim, Adapt.adapt_storage(a, v.vec))
 
+struct TriangleVector{T} <: AbstractArray{T, 1}
+    dim::Int
+    vec::CuVector{T}
+end
+
+TriangleVector(
+    elements::Vector{Triangle{T}}
+) where T = TriangleVector(
+    length(elements),
+    CuArray(NESSie.unpack(
+        [[e.v1; e.v2; e.v3; e.normal; e.distorig; e.area] for e in elements]
+    ))
+)
+
+@inline Base.size(v::TriangleVector{T}) where T = (v.dim,)
+
+@inline Base.getindex(
+    v::TriangleVector{T},
+     ::Int
+) where T = error("getindex not defined for ", typeof(v))
+
+@inline Base.setindex!(
+    v::TriangleVector{T},
+     ::Any,
+     ::Int
+) where T = error("setindex! not defined for ", typeof(v))
+
 @inline Adapt.adapt_storage(
     a::CUDAnative.Adaptor,
-    v::PositionVector{T}
-) where T = CuPositionVector(v.dim, Adapt.adapt_storage(a, v.vec))
+    v::TriangleVector{T}
+) where T = CuTriangleVector(v.dim, Adapt.adapt_storage(a, v.vec))
 
 # deprecated
 @inline function Ξ2device(pos::Vector{Vector{T}}) where T
@@ -46,6 +73,7 @@ PositionVector(
     ])
 end
 
+# deprecated
 @inline function elements2device(elements::Vector{Triangle{T}}) where T
     CuArray(NESSie.unpack(
         [[e.v1; e.v2; e.v3; e.normal; e.distorig; e.area] for e in elements]

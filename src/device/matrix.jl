@@ -1,15 +1,14 @@
 function _diag_kernel!(
     dst     ::CuDeviceVector{T},
     Ξ       ::CuPositionVector{T},
-    elements::CuDeviceVector{T},
-    dims    ::Int,
+    elements::CuTriangleVector{T},
     pot     ::F
 ) where {T, F <: Function}
     i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
-    i > dims && return
+    i > length(Ξ) && return
 
     ξ      = Ξ[i]
-    elem   = CuTriangle(elements, i)
+    elem   = elements[i]
     dst[i] = pot(ξ, elem)
     nothing
 end
@@ -17,32 +16,29 @@ end
 @inline _laplace_single_diag_kernel!(
     dst     ::CuDeviceVector{T},
     Ξ       ::CuPositionVector{T},
-    elements::CuDeviceVector{T},
-    dims    ::Int
-) where T = _diag_kernel!(dst, Ξ, elements, dims, laplacepot_single)
+    elements::CuTriangleVector{T}
+) where T = _diag_kernel!(dst, Ξ, elements, laplacepot_single)
 
 @inline _laplace_double_diag_kernel!(
     dst     ::CuDeviceVector{T},
     Ξ       ::CuPositionVector{T},
-    elements::CuDeviceVector{T},
-    dims    ::Int
-) where T = _diag_kernel!(dst, Ξ, elements, dims, laplacepot_double)
+    elements::CuTriangleVector{T}
+) where T = _diag_kernel!(dst, Ξ, elements, laplacepot_double)
 
 function _mul_kernel!(
     dst     ::CuDeviceVector{T},
     Ξ       ::CuPositionVector{T},
-    elements::CuDeviceVector{T},
+    elements::CuTriangleVector{T},
     x       ::CuDeviceVector{T},
-    dims    ::NTuple{2, Int},
     pot     ::F
 ) where {T, F <: Function}
     i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
-    i > dims[1] && return
+    i > length(Ξ) && return
 
     ξ = Ξ[i]
     val = T(0)
-    for j in 1:dims[2]
-        elem = CuTriangle(elements, j)
+    for j in 1:length(elements)
+        elem = elements[j]
         val = CUDAnative.fma(pot(ξ, elem), x[j], val)
     end
     dst[i] = val
@@ -52,15 +48,13 @@ end
 @inline _laplace_single_mul_kernel!(
     dst     ::CuDeviceVector{T},
     Ξ       ::CuPositionVector{T},
-    elements::CuDeviceVector{T},
-    x       ::CuDeviceVector{T},
-    dims    ::NTuple{2, Int}
-) where T = _mul_kernel!(dst, Ξ, elements, x, dims, laplacepot_single)
+    elements::CuTriangleVector{T},
+    x       ::CuDeviceVector{T}
+) where T = _mul_kernel!(dst, Ξ, elements, x, laplacepot_single)
 
 @inline _laplace_double_mul_kernel!(
     dst     ::CuDeviceVector{T},
     Ξ       ::CuPositionVector{T},
-    elements::CuDeviceVector{T},
-    x       ::CuDeviceVector{T},
-    dims    ::NTuple{2, Int}
-) where T = _mul_kernel!(dst, Ξ, elements, x, dims, laplacepot_double)
+    elements::CuTriangleVector{T},
+    x       ::CuDeviceVector{T}
+) where T = _mul_kernel!(dst, Ξ, elements, x, laplacepot_double)

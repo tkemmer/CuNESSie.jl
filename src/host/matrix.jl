@@ -30,18 +30,16 @@ end
 ) where T = Y .= A * x
 
 struct LaplacePotentialMatrix{T, L <: PotentialType} <: PotentialMatrix{T}
-    dims    ::NTuple{2, Int}
     Ξ       ::PositionVector{T}
-    elements::CuVector{T}
+    elements::TriangleVector{T}
 end
 
 @inline LaplacePotentialMatrix{L}(
-    dims    ::NTuple{2, Int},
     Ξ       ::PositionVector{T},
-    elements::CuVector{T}
-) where {T, L <: PotentialType} = LaplacePotentialMatrix{T, L}(dims, Ξ, elements)
+    elements::TriangleVector{T}
+) where {T, L <: PotentialType} = LaplacePotentialMatrix{T, L}(Ξ, elements)
 
-@inline Base.size(A::LaplacePotentialMatrix{T}) where T = A.dims
+@inline Base.size(A::LaplacePotentialMatrix{T}) where T = (length(A.Ξ), length(A.elements))
 
 @inline Base.:*(
     A::LaplacePotentialMatrix{T, SingleLayer},
@@ -67,12 +65,12 @@ function _diag(A::LaplacePotentialMatrix{T}, k::Int, pot::F) where {T, F <: Func
     @assert size(A, 1) == size(A, 2) "diag requires a square matrix"
     k != 0 && error("diag not defined for k != 0 on ", typeof(A))
     dst = CuArray{T}(undef, size(A, 1))
-    @cuda config=_kcfg(A) pot(dst, A.Ξ, A.elements, size(A, 1))
+    @cuda config=_kcfg(A) pot(dst, A.Ξ, A.elements)
     Array(dst)
 end
 
 function _mul(A::LaplacePotentialMatrix{T}, x::AbstractArray{T, 1}, pot::F) where {T, F <: Function}
     dst = CuArray{T}(undef, size(A, 1))
-    @cuda config=_kcfg(A) pot(dst, A.Ξ, A.elements, CuArray(x), size(A))
+    @cuda config=_kcfg(A) pot(dst, A.Ξ, A.elements, CuArray(x))
     Array(dst)
 end

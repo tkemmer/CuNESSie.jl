@@ -1,14 +1,14 @@
 struct LocalSystem{T}
     model   ::Model{T, Triangle{T}}
     Ξ       ::PositionVector{T}
-    elements::CuVector{T}
+    elements::TriangleVector{T}
     umol    ::Vector{T}
     qmol    ::Vector{T}
 end
 
 function LocalSystem(model::Model{T, Triangle{T}}) where T
     cuΞ    = PositionVector([e.center for e in model.elements])
-    cuelms = elements2device(model.elements)
+    cuelms = TriangleVector(model.elements)
     umol   = model.params.εΩ .\ φmol(model, tolerance=_etol(T))
     qmol   = model.params.εΩ .\ ∂ₙφmol(model)
     LocalSystem(model, cuΞ, cuelms, umol, qmol)
@@ -43,9 +43,8 @@ end
 function solve(sys::LocalSystem{T}) where T
     εΩ = sys.model.params.εΩ
     εΣ = sys.model.params.εΣ
-    n  = length(sys.model.elements)
-    K  = LaplacePotentialMatrix{DoubleLayer}((n, n), sys.Ξ, sys.elements)
-    V  = LaplacePotentialMatrix{SingleLayer}((n, n), sys.Ξ, sys.elements)
+    K  = LaplacePotentialMatrix{DoubleLayer}(sys.Ξ, sys.elements)
+    V  = LaplacePotentialMatrix{SingleLayer}(sys.Ξ, sys.elements)
     A  = LocalSystemMatrix(K, sys.model.params)
 
     u = _solve_linear_system(A, K * sys.umol .- (T(2π) .* sys.umol) .- (εΩ / εΣ .* (V * sys.qmol)))

@@ -1,5 +1,6 @@
 const CuPosition{T} = NamedTuple{(:x, :y, :z), NTuple{3, T}}
 
+# deprecated
 @inline function CuPosition(
     vec::CuDeviceVector{T},
     idx::Int
@@ -7,6 +8,21 @@ const CuPosition{T} = NamedTuple{(:x, :y, :z), NTuple{3, T}}
     stride = fld(size(vec, 1), 3)
     (x = vec[idx], y = vec[stride + idx], z = vec[2stride + idx])
 end
+
+const CuPositionVector{T} = NamedTuple{(:dim, :vec), Tuple{Int, CuDeviceVector{T, AS.Global}}}
+
+@inline Base.size(v::CuPositionVector{T}) where T = (v.dim,)
+
+@inline Base.getindex(
+    v::CuPositionVector{T},
+    i::Int
+) where T = (x = v.vec[i], y = v.vec[v.dim + i], z = v.vec[2 * v.dim + i])
+
+@inline Base.setindex!(
+    v::CuPositionVector{T},
+     ::Any,
+     ::Int
+) where T = error("setindex! not defined for CuPositionVector{$T}")
 
 const CuTriangle{T} = NamedTuple{
     (:v1, :v2, :v3, :normal, :distorig, :area),

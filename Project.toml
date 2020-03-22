@@ -5,6 +5,7 @@ authors = ["Thomas Kemmer <thomas@binaryden.de>"]
 version = "0.1.0"
 
 [deps]
+Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
 CUDAnative = "be33ccc6-a3ff-5ff2-a52e-74243cff1e17"
 CuArrays = "3a865a2d-5b23-5a0f-bc46-62713ec82fae"
 IterativeSolvers = "42fd0dbc-a981-5370-80f2-aaf504508153"

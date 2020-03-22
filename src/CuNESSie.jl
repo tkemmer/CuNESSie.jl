@@ -1,5 +1,6 @@
 module CuNESSie
 
+using Adapt
 using CuArrays
 using CUDAnative
 using IterativeSolvers

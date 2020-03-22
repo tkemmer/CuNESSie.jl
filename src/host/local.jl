@@ -1,13 +1,13 @@
 struct LocalSystem{T}
     model   ::Model{T, Triangle{T}}
-    Ξ       ::CuVector{T}
+    Ξ       ::PositionVector{T}
     elements::CuVector{T}
     umol    ::Vector{T}
     qmol    ::Vector{T}
 end
 
 function LocalSystem(model::Model{T, Triangle{T}}) where T
-    cuΞ    = Ξ2device([e.center for e in model.elements])
+    cuΞ    = PositionVector([e.center for e in model.elements])
     cuelms = elements2device(model.elements)
     umol   = model.params.εΩ .\ φmol(model, tolerance=_etol(T))
     qmol   = model.params.εΩ .\ ∂ₙφmol(model)

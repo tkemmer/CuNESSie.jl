@@ -31,13 +31,13 @@ end
 
 struct LaplacePotentialMatrix{T, L <: PotentialType} <: PotentialMatrix{T}
     dims    ::NTuple{2, Int}
-    Ξ       ::CuVector{T}
+    Ξ       ::PositionVector{T}
     elements::CuVector{T}
 end
 
 @inline LaplacePotentialMatrix{L}(
     dims    ::NTuple{2, Int},
-    Ξ       ::CuVector{T},
+    Ξ       ::PositionVector{T},
     elements::CuVector{T}
 ) where {T, L <: PotentialType} = LaplacePotentialMatrix{T, L}(dims, Ξ, elements)
 

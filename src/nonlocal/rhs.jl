@@ -9,23 +9,24 @@ function NonlocalSystemOutputs(
     umol::Vector{T},
     qmol::Vector{T}
 ) where T
+    numelem = length(A.elements)
     yuk = yukawa(A.params)
-    cfg = _kcfg(A.numelem)
+    cfg = _kcfg(numelem)
 
     cux = CuArray(umol)
-    ks  = CuArray{T}(undef, A.numelem)
-    @cuda config=cfg _rhs_k_kernel!(ks, A.elements, A.Ξ, cux, A.numelem,
+    ks  = CuArray{T}(undef, numelem)
+    @cuda config=cfg _rhs_k_kernel!(ks, A.Ξ, A.elements, cux,
         one(yuk) - (A.params.εΩ / A.params.εΣ), yuk)
 
     cux .= CuArray(qmol)
-    vs  = CuArray{T}(undef, A.numelem)
-    @cuda config=cfg _rhs_v_kernel!(vs, A.elements, A.Ξ, cux, A.numelem,
+    vs  = CuArray{T}(undef, numelem)
+    @cuda config=cfg _rhs_v_kernel!(vs, A.Ξ, A.elements, cux,
         A.params.εΩ * (one(yuk)/A.params.εΣ - one(yuk)/A.params.ε∞),
         A.params.εΩ / A.params.ε∞,
         yuk
     )
 
-    NonlocalSystemOutputs(Array(ks .+ vs), A.numelem)
+    NonlocalSystemOutputs(Array(ks .+ vs), numelem)
 end
 
 @inline Base.size(v::NonlocalSystemOutputs{T}) where T = (3 * v.numelem, )
@@ -44,22 +45,19 @@ end
 
 function _rhs_k_kernel!(
     dst     ::CuDeviceVector{T},
-    elements::CuDeviceVector{T},
-    Ξ       ::CuDeviceVector{T},
+    Ξ       ::CuPositionVector{T},
+    elements::CuTriangleVector{T},
     umol    ::CuDeviceVector{T},
-    numelem ::Int,
     pref    ::T,
     yuk     ::T
 ) where T
     i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
-    if i > numelem
-        return nothing
-    end
+    i > length(Ξ) && return
 
-    ξ = CuPosition(Ξ, i)
-    val = zero(Ξ[1])
-    for j in 1:numelem
-        elem = CuTriangle(elements, j)
+    ξ = Ξ[i]
+    val = zero(yuk)
+    for j in 1:length(elements)
+        elem = elements[j]
         val = CUDAnative.fma(
             CUDAnative.fma(
                 regularyukawapot_double(ξ, elem, yuk),
@@ -76,23 +74,20 @@ end
 
 function _rhs_v_kernel!(
     dst     ::CuDeviceVector{T},
-    elements::CuDeviceVector{T},
-    Ξ       ::CuDeviceVector{T},
+    Ξ       ::CuPositionVector{T},
+    elements::CuTriangleVector{T},
     qmol    ::CuDeviceVector{T},
-    numelem ::Int,
     pref1   ::T,
     pref2   ::T,
     yuk     ::T
 ) where T
     i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
-    if i > numelem
-        return nothing
-    end
+    i > length(Ξ) && return
 
-    ξ = CuPosition(Ξ, i)
-    val = zero(Ξ[1])
-    for j in 1:numelem
-        elem = CuTriangle(elements, j)
+    ξ = Ξ[i]
+    val = zero(yuk)
+    for j in 1:length(elements)
+        elem = elements[j]
         val = CUDAnative.fma(
             CUDAnative.fma(
                 regularyukawapot_single(ξ, elem, yuk),

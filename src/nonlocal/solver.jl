@@ -7,10 +7,10 @@ struct NonlocalSystem{T}
 end
 
 function NonlocalSystem(model::Model{T, Triangle{T}}) where T
-    cuΞ    = Ξ2device([e.center for e in model.elements])
-    cuelms = elements2device(model.elements)
+    cuΞ    = PositionVector([e.center for e in model.elements])
+    cuelms = TriangleVector(model.elements)
 
-    A    = NonlocalSystemMatrix(cuΞ, cuelms, length(model.elements), model.params)
+    A    = NonlocalSystemMatrix(cuΞ, cuelms, model.params)
     umol = model.params.εΩ .\   φmol(model, tolerance=_etol(T))
     qmol = model.params.εΩ .\ ∂ₙφmol(model)
     b    = NonlocalSystemOutputs(A, umol, qmol)
@@ -19,13 +19,13 @@ function NonlocalSystem(model::Model{T, Triangle{T}}) where T
 end
 
 function solve(sys::NonlocalSystem{T}) where T
-    numelem = sys.A.numelem
+    numξ = length(sys.A.Ξ)
     cauchy  = _solve_linear_system(sys.A, sys.b)
     NESSie.BEM.NonlocalBEMResult(
         sys.model,
-        view(cauchy, 1:numelem),
-        view(cauchy, 1+numelem:2numelem),
-        view(cauchy, 1+2numelem:3numelem),
+        view(cauchy, 1:numξ),
+        view(cauchy, 1+numξ:2numξ),
+        view(cauchy, 1+numξ:3numξ),
         sys.umol,
         sys.qmol
     )

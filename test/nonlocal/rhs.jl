@@ -18,17 +18,16 @@ using NESSie: yukawa
             Triangle(v2, v3, v4),
             Triangle(v3, v1, v4)
         ]
-        cuelements = elements2device(elements)
+        cuelements = TriangleVector(elements)
 
         Ξ = [e.center for e in elements]
-        cuΞ = Ξ2device(Ξ)
+        cuΞ = PositionVector(Ξ)
 
-        numelem = length(elements)
-        dst = CuArray{T}(undef, numelem)
+        numξ = length(cuΞ)
+        dst = CuArray{T}(undef, numξ)
 
-        @cuda threads=numelem _rhs_k_kernel!(
-            dst, cuelements, cuΞ, CuArrays.ones(T, numelem), numelem,
-            one(yuk) - (opt.εΩ / opt.εΣ), yuk
+        @cuda threads=numξ _rhs_k_kernel!(
+            dst, cuΞ, cuelements, CuArrays.ones(T, numξ), one(yuk) - (opt.εΩ / opt.εΣ), yuk
         )
         cures = Array(dst)
 
@@ -37,7 +36,7 @@ using NESSie: yukawa
             collect(enumerate(elements)),
             NESSie.BEM.KSfun{T}(opt)
         )
-        @test cures ≈ Ks * ones(T, numelem)
+        @test cures ≈ Ks * ones(T, numξ)
     end
 end
 
@@ -57,16 +56,16 @@ end
             Triangle(v2, v3, v4),
             Triangle(v3, v1, v4)
         ]
-        cuelements = elements2device(elements)
+        cuelements = TriangleVector(elements)
 
         Ξ = [e.center for e in elements]
-        cuΞ = Ξ2device(Ξ)
+        cuΞ = PositionVector(Ξ)
 
-        numelem = length(elements)
-        dst = CuArray{T}(undef, numelem)
+        numξ = length(cuΞ)
+        dst = CuArray{T}(undef, numξ)
 
-        @cuda threads=numelem _rhs_v_kernel!(
-            dst, cuelements, cuΞ, CuArrays.ones(T, numelem), numelem,
+        @cuda threads=numξ _rhs_v_kernel!(
+            dst, cuΞ, cuelements, CuArrays.ones(T, numξ),
             opt.εΩ * (one(yuk)/opt.εΣ - one(yuk)/opt.ε∞), opt.εΩ / opt.ε∞, yuk
         )
         cures = Array(dst)
@@ -76,6 +75,6 @@ end
             elements,
             NESSie.BEM.VSfun{T}(opt)
         )
-        @test cures ≈ Vs * ones(T, numelem)
+        @test cures ≈ Vs * ones(T, numξ)
     end
 end

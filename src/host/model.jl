@@ -27,10 +27,10 @@ PositionVector(
      ::Int
 ) where T = error("setindex! not defined for ", typeof(v))
 
-@inline Base.convert(
-     ::Type{CuPositionVector{T}},
+@inline Adapt.adapt_storage(
+    a::CUDAnative.Adaptor,
     v::PositionVector{T}
-) where T = (dim = v.dim, vec = convert(CuDeviceVector{T, AS.Global}, v.vec))
+) where T = CuPositionVector(v.dim, Adapt.adapt_storage(a, v.vec))
 
 @inline Adapt.adapt_storage(
     a::CUDAnative.Adaptor,

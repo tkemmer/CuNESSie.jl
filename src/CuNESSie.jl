@@ -15,7 +15,7 @@ include("device/math.jl")
 include("device/matrix.jl")
 include("device/laplace.jl")
 include("device/yukawa.jl")
-export CuPosition, CuTriangle, Ξ2device, elements2device,
+export CuPosition, CuPositionVector, CuTriangle, CuTriangleVector, Ξ2device, elements2device,
     laplacepot_single, laplacepot_double,
     regularyukawapot_single, regularyukawapot_double
 
@@ -25,7 +25,8 @@ include("host/matrix.jl")
 include("host/common.jl")
 include("host/local.jl")
 include("host/post.jl")
-export LaplacePotentialMatrix, LocalSystem, LocalSystemMatrix, rfenergy, solve
+export LaplacePotentialMatrix, LocalSystem, LocalSystemMatrix, PositionVector, TriangleVector,
+    rfenergy, solve
 
 # nonlocal BEM
 include("nonlocal/matrix.jl")

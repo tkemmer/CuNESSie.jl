@@ -1,9 +1,9 @@
-function rfenergy(bem::NESSie.BEM.NonlocalBEMResult{T}) where T
+function rfenergy(bem::R) where {T, R <: NESSie.BEM.BEMResult{T}}
     cuΞ     = PositionVector([c.pos for c in bem.model.charges])
     cuelms  = TriangleVector(bem.model.elements)
 
-    V  = LaplacePotentialMatrix{SingleLayer}(cuΞ, cuelms)
-    K  = LaplacePotentialMatrix{DoubleLayer}(cuΞ, cuelms)
+    Ṽ  = LaplacePotentialMatrix{SingleLayer}(cuΞ, cuelms)
+    W  = LaplacePotentialMatrix{DoubleLayer}(cuΞ, cuelms)
 
-    (V * bem.q .- K * bem.u) ⋅ [c.val for c in bem.model.charges] * T(110.56123849403735)
+    (Ṽ * bem.q .- W * bem.u) ⋅ [c.val for c in bem.model.charges] * T(55.27935812569474)
 end

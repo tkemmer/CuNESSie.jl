@@ -37,3 +37,23 @@ end
 @inline rfenergy(
     bem::R
 ) where {T, R <: BEMResult{T}} = rfenergy(PostProcessor(bem))
+
+function φΣ(
+    Ξ::Vector{Vector{T}},
+    proc::PostProcessor{T, LocalBEMResult{T, Triangle{T}}}
+) where T
+    εΩ = proc.bem.model.params.εΩ
+    εΣ = proc.bem.model.params.εΣ
+    Ξ  = PositionVector(Ξ)
+    Ṽ  = LaplacePotentialMatrix{SingleLayer}(Ξ, proc.elements)
+    W  = LaplacePotentialMatrix{DoubleLayer}(Ξ, proc.elements)
+
+    (NESSie.potprefactor(T) / T(4π)) .*
+        (W * (proc.bem.u .+ proc.bem.umol) .-
+        ((εΩ / εΣ) .* (Ṽ * (proc.bem.q .+ proc.bem.qmol))))
+end
+
+@inline φΣ(
+    Ξ  ::Vector{Vector{T}},
+    bem::LocalBEMResult{T, Triangle{T}}
+) where T = φΣ(Ξ, PostProcessor(bem))

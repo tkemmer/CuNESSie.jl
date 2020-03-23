@@ -1,24 +1,39 @@
-function rfenergy(bem::R) where {T, R <: NESSie.BEM.BEMResult{T}}
-    cuΞ     = PositionVector([c.pos for c in bem.model.charges])
-    cuelms  = TriangleVector(bem.model.elements)
-
-    Ṽ  = LaplacePotentialMatrix{SingleLayer}(cuΞ, cuelms)
-    W  = LaplacePotentialMatrix{DoubleLayer}(cuΞ, cuelms)
-
-    (Ṽ * bem.q .- W * bem.u) ⋅ [c.val for c in bem.model.charges] * T(55.27935812569474)
+struct PostProcessor{T, R <: NESSie.BEM.BEMResult{T}}
+    bem     ::R
+    elements::TriangleVector{T}
 end
 
-function φΩ(
+@inline function PostProcessor(bem::R) where {T, R <: NESSie.BEM.BEMResult{T}}
+    PostProcessor(bem, TriangleVector(bem.model.elements))
+end
+
+function rfenergy(proc::PostProcessor{T}) where T
+    cuΞ   = PositionVector([c.pos for c in proc.bem.model.charges])
+    qvals = [c.val for c in proc.bem.model.charges]
+
+    Ṽ  = LaplacePotentialMatrix{SingleLayer}(cuΞ, proc.elements)
+    W  = LaplacePotentialMatrix{DoubleLayer}(cuΞ, proc.elements)
+
+    (Ṽ * proc.bem.q .- W * proc.bem.u) ⋅ qvals * T(55.27935812569474)
+end
+
+@inline rfenergy(
+    bem::R
+) where {T, R <: NESSie.BEM.BEMResult{T}} = rfenergy(PostProcessor(bem))
+
+function φΩ(Ξ::Vector{Vector{T}}, proc::PostProcessor{T}) where T
+    cuΞ = PositionVector(Ξ)
+    φm  = φmol(Ξ, proc.bem.model.charges)
+
+    Ṽ = LaplacePotentialMatrix{SingleLayer}(cuΞ, proc.elements)
+    W = LaplacePotentialMatrix{DoubleLayer}(cuΞ, proc.elements)
+
+    εΩ = proc.bem.model.params.εΩ
+    NESSie.potprefactor(T) .*
+        (T(4π) .\ (Ṽ * proc.bem.q .- W * proc.bem.u) .+ εΩ .\ φm)
+end
+
+@inline φΩ(
     Ξ  ::Vector{Vector{T}},
     bem::R
-) where {T, R <: NESSie.BEM.BEMResult{T}}
-    cuΞ    = PositionVector(Ξ)
-    cuelms = TriangleVector(bem.model.elements)
-
-    Ṽ = LaplacePotentialMatrix{SingleLayer}(cuΞ, cuelms)
-    W = LaplacePotentialMatrix{DoubleLayer}(cuΞ, cuelms)
-
-    εΩ = bem.model.params.εΩ
-    NESSie.potprefactor(T) .*
-    (T(4π) .\ (Ṽ * bem.q .- W * bem.u) .+ εΩ .\ φmol(Ξ, bem.model.charges))
-end
+) where {T, R <: NESSie.BEM.BEMResult{T}} = φΩ(Ξ, PostProcessor(bem))

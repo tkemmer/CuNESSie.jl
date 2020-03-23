@@ -1,9 +1,9 @@
-struct PostProcessor{T, R <: NESSie.BEM.BEMResult{T}}
+struct PostProcessor{T, R <: BEMResult{T}}
     bem     ::R
     elements::TriangleVector{T}
 end
 
-@inline function PostProcessor(bem::R) where {T, R <: NESSie.BEM.BEMResult{T}}
+@inline function PostProcessor(bem::R) where {T, R <: BEMResult{T}}
     PostProcessor(bem, TriangleVector(bem.model.elements))
 end
 
@@ -25,7 +25,7 @@ end
 @inline φΩ(
     Ξ  ::Vector{Vector{T}},
     bem::R
-) where {T, R <: NESSie.BEM.BEMResult{T}} = φΩ(Ξ, PostProcessor(bem))
+) where {T, R <: BEMResult{T}} = φΩ(Ξ, PostProcessor(bem))
 
 function rfenergy(proc::PostProcessor{T}) where T
     qposs = [c.pos for c in proc.bem.model.charges]
@@ -36,4 +36,4 @@ end
 
 @inline rfenergy(
     bem::R
-) where {T, R <: NESSie.BEM.BEMResult{T}} = rfenergy(PostProcessor(bem))
+) where {T, R <: BEMResult{T}} = rfenergy(PostProcessor(bem))

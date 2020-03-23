@@ -21,7 +21,7 @@ end
 function solve(sys::NonlocalSystem{T}) where T
     numξ = length(sys.A.Ξ)
     cauchy  = _solve_linear_system(sys.A, sys.b)
-    NESSie.BEM.NonlocalBEMResult(
+    NonlocalBEMResult(
         sys.model,
         view(cauchy, 1:numξ),
         view(cauchy, 1+numξ:2numξ),

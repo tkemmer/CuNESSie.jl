@@ -50,7 +50,7 @@ function solve(sys::LocalSystem{T}) where T
     u = _solve_linear_system(A, K * sys.umol .- (T(2π) .* sys.umol) .- (εΩ / εΣ .* (V * sys.qmol)))
     q = _solve_linear_system(V, K * u .+ (T(2π) .* u))
 
-    NESSie.BEM.LocalBEMResult(sys.model, u, q, sys.umol, sys.qmol)
+    LocalBEMResult(sys.model, u, q, sys.umol, sys.qmol)
 end
 
 @inline solve(

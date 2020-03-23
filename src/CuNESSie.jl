@@ -7,6 +7,7 @@ using IterativeSolvers
 using LinearAlgebra
 using NESSie
 using NESSie: yukawa
+using NESSie.BEM: BEMResult, LocalBEMResult, NonlocalBEMResult
 using Preconditioners
 
 # device code
@@ -26,7 +27,7 @@ include("host/common.jl")
 include("host/local.jl")
 include("host/post.jl")
 export LaplacePotentialMatrix, LocalSystem, LocalSystemMatrix, PositionVector,
-    PostProcessor, TriangleVector, rfenergy, solve, φΩ
+    PostProcessor, TriangleVector, rfenergy, solve, φΩ, φΣ
 
 # nonlocal BEM
 include("nonlocal/matrix.jl")

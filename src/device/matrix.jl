@@ -1,4 +1,4 @@
-function _diag_kernel!(
+function _laplace_diag_kernel!(
     dst     ::CuDeviceVector{T},
     Ξ       ::CuPositionVector{T},
     elements::CuTriangleVector{T},
@@ -17,15 +17,15 @@ end
     dst     ::CuDeviceVector{T},
     Ξ       ::CuPositionVector{T},
     elements::CuTriangleVector{T}
-) where T = _diag_kernel!(dst, Ξ, elements, laplacepot_single)
+) where T = _laplace_diag_kernel!(dst, Ξ, elements, laplacepot_single)
 
 @inline _laplace_double_diag_kernel!(
     dst     ::CuDeviceVector{T},
     Ξ       ::CuPositionVector{T},
     elements::CuTriangleVector{T}
-) where T = _diag_kernel!(dst, Ξ, elements, laplacepot_double)
+) where T = _laplace_diag_kernel!(dst, Ξ, elements, laplacepot_double)
 
-function _mul_kernel!(
+function _laplace_mul_kernel!(
     dst     ::CuDeviceVector{T},
     Ξ       ::CuPositionVector{T},
     elements::CuTriangleVector{T},
@@ -50,11 +50,11 @@ end
     Ξ       ::CuPositionVector{T},
     elements::CuTriangleVector{T},
     x       ::CuDeviceVector{T}
-) where T = _mul_kernel!(dst, Ξ, elements, x, laplacepot_single)
+) where T = _laplace_mul_kernel!(dst, Ξ, elements, x, laplacepot_single)
 
 @inline _laplace_double_mul_kernel!(
     dst     ::CuDeviceVector{T},
     Ξ       ::CuPositionVector{T},
     elements::CuTriangleVector{T},
     x       ::CuDeviceVector{T}
-) where T = _mul_kernel!(dst, Ξ, elements, x, laplacepot_double)
+) where T = _laplace_mul_kernel!(dst, Ξ, elements, x, laplacepot_double)

@@ -36,29 +36,10 @@ end
 
 function LinearAlgebra.diag(A::NonlocalSystemMatrix{T}, k::Int = 0) where T
     k != 0 && error("diag not defined for k != 0")
-
-    dst = CuArray{T}(undef, size(A, 1))
-    @cuda config=_kcfg(size(A, 1)) _diag_kernel!(dst, A.Ξ, A.elements, yukawa(A.params))
-    Array(dst)
-end
-
-function _diag_kernel!(
-    dst     ::CuDeviceVector{T},
-    Ξ       ::CuPositionVector{T},
-    elements::CuTriangleVector{T},
-    yuk     ::T
-) where T
-    i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
-    i > length(Ξ) && return
-
-    ξ = Ξ[i]
-    elem = elements[i]
-    numelem = length(elements)
-    ld = laplacepot_double(ξ, elem)
-    dst[i]            = T(2π) - regularyukawapot_double(ξ, elem, yuk) - ld
-    dst[i + numelem]  = laplacepot_single(ξ, elem)
-    dst[i + 2numelem] = T(2π) - ld
-    nothing
+    Kʸ = ReYukawaPotentialMatrix{DoubleLayer}(A.Ξ, A.elements, yukawa(A.params))
+    V  = LaplacePotentialMatrix{SingleLayer}(A.Ξ, A.elements)
+    σ  = T(2π) .* ones(T, size(A.Ξ, 1))
+    [ σ .- diag(Kʸ); diag(V) ; σ ]
 end
 
 # TODO mul!/5

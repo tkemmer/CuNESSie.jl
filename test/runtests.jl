@@ -14,6 +14,5 @@ using Test
 
     @testset "nonlocal" begin
         @testset "matrix.jl" begin include("nonlocal/matrix.jl") end
-        @testset "rhs.jl" begin include("nonlocal/rhs.jl") end
     end
 end

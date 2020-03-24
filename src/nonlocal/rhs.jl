@@ -9,24 +9,20 @@ function NonlocalSystemOutputs(
     umol::Vector{T},
     qmol::Vector{T}
 ) where T
-    numelem = length(A.elements)
-    yuk = yukawa(A.params)
-    cfg = _kcfg(numelem)
+    εΩ   = A.params.εΩ
+    εΣ   = A.params.εΣ
+    ε∞   = A.params.ε∞
+    yuk  = yukawa(A.params)
+    Ṽ    = LaplacePotentialMatrix{SingleLayer}(A.Ξ, A.elements)
+    W    = LaplacePotentialMatrix{DoubleLayer}(A.Ξ, A.elements)
+    ṼʸmṼ = ReYukawaPotentialMatrix{SingleLayer}(A.Ξ, A.elements, yuk)
+    WʸmW = ReYukawaPotentialMatrix{DoubleLayer}(A.Ξ, A.elements, yuk)
 
-    cux = CuArray(umol)
-    ks  = CuArray{T}(undef, numelem)
-    @cuda config=cfg _rhs_k_kernel!(ks, A.Ξ, A.elements, cux,
-        one(yuk) - (A.params.εΩ / A.params.εΣ), yuk)
-
-    cux .= CuArray(qmol)
-    vs  = CuArray{T}(undef, numelem)
-    @cuda config=cfg _rhs_v_kernel!(vs, A.Ξ, A.elements, cux,
-        A.params.εΩ * (one(yuk)/A.params.εΣ - one(yuk)/A.params.ε∞),
-        A.params.εΩ / A.params.ε∞,
-        yuk
+    NonlocalSystemOutputs(
+        W * umol .+ ((1 - εΩ/εΣ) .* (WʸmW * umol)) .- (T(2π) .* umol) .-
+        ((εΩ/ε∞) .* (Ṽ * qmol)) .+ ((εΩ * (1/εΣ - 1/ε∞)) .* (ṼʸmṼ * qmol)),
+        length(A.elements)
     )
-
-    NonlocalSystemOutputs(Array(ks .+ vs), numelem)
 end
 
 @inline Base.size(v::NonlocalSystemOutputs{T}) where T = (3 * v.numelem, )
@@ -42,62 +38,3 @@ end
      ::Any,
      ::Int
 ) where T = error("setindex! not defined for ", typeof(v))
-
-function _rhs_k_kernel!(
-    dst     ::CuDeviceVector{T},
-    Ξ       ::CuPositionVector{T},
-    elements::CuTriangleVector{T},
-    umol    ::CuDeviceVector{T},
-    pref    ::T,
-    yuk     ::T
-) where T
-    i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
-    i > length(Ξ) && return
-
-    ξ = Ξ[i]
-    val = zero(yuk)
-    for j in 1:length(elements)
-        elem = elements[j]
-        val = CUDAnative.fma(
-            CUDAnative.fma(
-                regularyukawapot_double(ξ, elem, yuk),
-                pref,
-                (i == j ? T(-2π) : T(0)) + laplacepot_double(ξ, elem)
-            ),
-            umol[j],
-            val
-        )
-    end
-    dst[i] = val
-    nothing
-end
-
-function _rhs_v_kernel!(
-    dst     ::CuDeviceVector{T},
-    Ξ       ::CuPositionVector{T},
-    elements::CuTriangleVector{T},
-    qmol    ::CuDeviceVector{T},
-    pref1   ::T,
-    pref2   ::T,
-    yuk     ::T
-) where T
-    i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
-    i > length(Ξ) && return
-
-    ξ = Ξ[i]
-    val = zero(yuk)
-    for j in 1:length(elements)
-        elem = elements[j]
-        val = CUDAnative.fma(
-            CUDAnative.fma(
-                regularyukawapot_single(ξ, elem, yuk),
-                pref1,
-                -pref2 * laplacepot_single(ξ, elem)
-            ),
-            qmol[j],
-            val
-        )
-    end
-    dst[i] = val
-    nothing
-end

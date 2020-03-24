@@ -11,8 +11,4 @@ using Test
         @testset "laplace.jl" begin include("device/laplace.jl") end
         @testset "yukawa.jl" begin include("device/yukawa.jl") end
     end
-
-    @testset "nonlocal" begin
-        @testset "matrix.jl" begin include("nonlocal/matrix.jl") end
-    end
 end

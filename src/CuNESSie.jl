@@ -31,7 +31,6 @@ export LaplacePotentialMatrix, LocalSystem, LocalSystemMatrix, PositionVector,
 
 # nonlocal BEM
 include("nonlocal/matrix.jl")
-include("nonlocal/rhs.jl")
 include("nonlocal/solver.jl")
 export NonlocalSystem, NonlocalSystemMatrix, NonlocalSystemOutputs, solve
 

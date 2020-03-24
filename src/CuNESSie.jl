@@ -27,7 +27,7 @@ include("host/common.jl")
 include("host/local.jl")
 include("host/post.jl")
 export LaplacePotentialMatrix, LocalSystem, LocalSystemMatrix, PositionVector,
-    PostProcessor, TriangleVector, rfenergy, solve, φ⃰Ω, φΩ, φΣ
+    PostProcessor, ReYukawaPotentialMatrix, TriangleVector, rfenergy, solve, φ⃰Ω, φΩ, φΣ
 
 # nonlocal BEM
 include("nonlocal/matrix.jl")

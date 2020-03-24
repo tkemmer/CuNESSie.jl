@@ -25,7 +25,7 @@ function solve(sys::NonlocalSystem{T}) where T
         sys.model,
         view(cauchy, 1:numξ),
         view(cauchy, 1+numξ:2numξ),
-        view(cauchy, 1+numξ:3numξ),
+        view(cauchy, 1+2numξ:3numξ),
         sys.umol,
         sys.qmol
     )

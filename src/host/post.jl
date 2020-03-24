@@ -53,7 +53,29 @@ function φΣ(
         ((εΩ / εΣ) .* (Ṽ * (proc.bem.q .+ proc.bem.qmol))))
 end
 
+function φΣ(
+    Ξ::Vector{Vector{T}},
+    proc::PostProcessor{T, NonlocalBEMResult{T, Triangle{T}}}
+) where T
+    εΩ   = proc.bem.model.params.εΩ
+    εΣ   = proc.bem.model.params.εΣ
+    ε∞   = proc.bem.model.params.ε∞
+    yuk  = yukawa(proc.bem.model.params)
+    Ξ    = PositionVector(Ξ)
+    Ṽ    = LaplacePotentialMatrix{SingleLayer}(Ξ, proc.elements)
+    W    = LaplacePotentialMatrix{DoubleLayer}(Ξ, proc.elements)
+    ṼʸmṼ = ReYukawaPotentialMatrix{SingleLayer}(Ξ, proc.elements, yuk)
+    WʸmW = ReYukawaPotentialMatrix{DoubleLayer}(Ξ, proc.elements, yuk)
+
+    (NESSie.potprefactor(T) / T(4π)) .* (
+        (Ṽ * ((-εΩ/ε∞) .* (proc.bem.q .+ proc.bem.qmol)))
+        .+ (W * (proc.bem.u .+ proc.bem.umol))
+        .+ (ṼʸmṼ * ((εΩ * (1/εΣ - 1/ε∞)) .* (proc.bem.q .+ proc.bem.qmol)))
+        .+ (WʸmW * (proc.bem.u .- ((ε∞/εΣ) * proc.bem.w) .+ ((1 - εΩ/εΣ) * proc.bem.umol)))
+    )
+end
+
 @inline φΣ(
     Ξ  ::Vector{Vector{T}},
-    bem::LocalBEMResult{T, Triangle{T}}
-) where T = φΣ(Ξ, PostProcessor(bem))
+    bem::R
+) where {T, R <: BEMResult{T}} = φΣ(Ξ, PostProcessor(bem))

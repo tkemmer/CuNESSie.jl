@@ -59,6 +59,36 @@ end
     x       ::CuDeviceVector{T}
 ) where T = _laplace_mul_kernel!(dst, Ξ, elements, x, laplacepot_double)
 
+function _reyukawa_diag_kernel!(
+    dst     ::CuDeviceVector{T},
+    Ξ       ::CuPositionVector{T},
+    elements::CuTriangleVector{T},
+    yuk     ::T,
+    pot     ::F
+) where {T, F <: Function}
+    i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
+    i > length(Ξ) && return
+
+    ξ      = Ξ[i]
+    elem   = elements[i]
+    dst[i] = pot(ξ, elem, yuk)
+    nothing
+end
+
+@inline _reyukawa_single_diag_kernel!(
+    dst     ::CuDeviceVector{T},
+    Ξ       ::CuPositionVector{T},
+    elements::CuTriangleVector{T},
+    yuk     ::T
+) where T = _reyukawa_diag_kernel!(dst, Ξ, elements, yuk, regularyukawapot_single)
+
+@inline _reyukawa_double_diag_kernel!(
+    dst     ::CuDeviceVector{T},
+    Ξ       ::CuPositionVector{T},
+    elements::CuTriangleVector{T},
+    yuk     ::T
+) where T = _reyukawa_diag_kernel!(dst, Ξ, elements, yuk, regularyukawapot_double)
+
 function _reyukawa_mul_kernel!(
     dst     ::CuDeviceVector{T},
     Ξ       ::CuPositionVector{T},

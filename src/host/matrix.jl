@@ -99,6 +99,24 @@ end
     x::AbstractArray{T, 1}
 ) where T = _mul(A, x, _reyukawa_double_mul_kernel!)
 
+@inline LinearAlgebra.diag(
+    A::ReYukawaPotentialMatrix{T, SingleLayer},
+    k::Int = 0
+) where T = _diag(A, k, _reyukawa_single_diag_kernel!)
+
+@inline LinearAlgebra.diag(
+    A::ReYukawaPotentialMatrix{T, DoubleLayer},
+    k::Int = 0
+) where T = _diag(A, k, _reyukawa_double_diag_kernel!)
+
+function _diag(A::ReYukawaPotentialMatrix{T}, k::Int, pot::F) where {T, F <: Function}
+    @assert size(A, 1) == size(A, 2) "diag requires a square matrix"
+    k != 0 && error("diag not defined for k != 0 on ", typeof(A))
+    dst = CuArray{T}(undef, size(A, 1))
+    @cuda config=_kcfg(A) pot(dst, A.Ξ, A.elements, A.yuk)
+    Array(dst)
+end
+
 function _mul(
     A  ::ReYukawaPotentialMatrix{T},
     x  ::AbstractArray{T, 1},

@@ -69,11 +69,17 @@ function _diag(A::LaplacePotentialMatrix{T}, k::Int, pot::F) where {T, F <: Func
     Array(dst)
 end
 
-function _mul(A::LaplacePotentialMatrix{T}, x::AbstractArray{T, 1}, pot::F) where {T, F <: Function}
+function _mul(A::LaplacePotentialMatrix{T}, x::CuArray{T, 1}, pot::F) where {T, F <: Function}
     dst = CuArray{T}(undef, size(A, 1))
-    @cuda config=_kcfg(A) pot(dst, A.Ξ, A.elements, CuArray(x))
-    Array(dst)
+    @cuda config=_kcfg(A) pot(dst, A.Ξ, A.elements, x)
+    dst
 end
+
+@inline _mul(
+    A  ::LaplacePotentialMatrix{T},
+    x  ::AbstractArray{T, 1},
+    pot::F
+) where {T, F <: Function} = Array(_mul(A, CuArray(x), pot))
 
 struct ReYukawaPotentialMatrix{T, L <: PotentialType} <: PotentialMatrix{T}
     Ξ       ::PositionVector{T}
@@ -119,10 +125,16 @@ end
 
 function _mul(
     A  ::ReYukawaPotentialMatrix{T},
-    x  ::AbstractArray{T, 1},
+    x  ::CuArray{T, 1},
     pot::F
 ) where {T, F <: Function}
     dst = CuArray{T}(undef, size(A, 1))
-    @cuda config=_kcfg(A) pot(dst, A.Ξ, A.elements, CuArray(x), A.yuk)
-    Array(dst)
+    @cuda config=_kcfg(A) pot(dst, A.Ξ, A.elements, x, A.yuk)
+    dst
 end
+
+@inline _mul(
+    A  ::ReYukawaPotentialMatrix{T},
+    x  ::AbstractArray{T, 1},
+    pot::F
+) where {T, F <: Function} = Array(_mul(A, CuArray(x), pot))

@@ -66,15 +66,15 @@ function _mul(
     cfg = _kcfg(numelem)
     yuk = yukawa(params)
 
+    Vʸ = ReYukawaPotentialMatrix{SingleLayer}(Ξ, elements, yuk)
+
     ls = CuArray{T}(undef, 3numelem)
     @cuda config=cfg _mul_ls_kernel!(ls, Ξ, elements, x, params.εΩ/params.ε∞)
 
     ld = CuArray{T}(undef, 3numelem)
     @cuda config=cfg _mul_ld_kernel!(ld, Ξ, elements, x)
 
-    ys = CuArray{T}(undef, numelem)
-    @cuda config=cfg _mul_ys_kernel!(ys, Ξ, elements, x,
-        params.εΩ * (1/params.ε∞ - 1/params.εΣ), yuk)
+    ys = (params.εΩ * (1/params.ε∞ - 1/params.εΣ)) .* (Vʸ * x[numelem+1:2numelem])
 
     yd = CuArray{T}(undef, numelem)
     @cuda config=cfg _mul_yd_kernel!(yd, Ξ, elements, x, params.ε∞/params.εΣ, yuk)
@@ -132,28 +132,6 @@ function _mul_ld_kernel!(
     dst[i] = -val12
     dst[i + numelem] = val12
     dst[i + 2numelem] = -val3
-    nothing
-end
-
-function _mul_ys_kernel!(
-    dst     ::CuDeviceVector{T},
-    Ξ       ::CuPositionVector{T},
-    elements::CuTriangleVector{T},
-    x       ::CuDeviceVector{T},
-    pref    ::T,
-    yuk     ::T
-) where T
-    i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
-    i > length(Ξ) && return
-
-    ξ = Ξ[i]
-    numelem = length(elements)
-    val = T(0)
-    for j in 1:numelem
-        elem = elements[j]
-        val = CUDAnative.fma(regularyukawapot_single(ξ, elem, yuk), x[j + numelem], val)
-    end
-    dst[i] = pref * val
     nothing
 end
 

@@ -7,9 +7,7 @@ function _laplace_diag_kernel!(
     i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
     i > length(Ξ) && return
 
-    ξ      = Ξ[i]
-    elem   = elements[i]
-    dst[i] = pot(ξ, elem)
+    dst[i] = pot(Ξ[i], elements[i])
     nothing
 end
 
@@ -38,8 +36,7 @@ function _laplace_mul_kernel!(
     ξ = Ξ[i]
     val = T(0)
     for j in 1:length(elements)
-        elem = elements[j]
-        val = CUDAnative.fma(pot(ξ, elem), x[j], val)
+        val = CUDAnative.fma(pot(ξ, elements[j]), x[j], val)
     end
     dst[i] = val
     nothing
@@ -69,9 +66,7 @@ function _reyukawa_diag_kernel!(
     i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
     i > length(Ξ) && return
 
-    ξ      = Ξ[i]
-    elem   = elements[i]
-    dst[i] = pot(ξ, elem, yuk)
+    dst[i] = pot(Ξ[i], elements[i], yuk)
     nothing
 end
 
@@ -103,8 +98,7 @@ function _reyukawa_mul_kernel!(
     ξ = Ξ[i]
     val = T(0)
     for j in 1:length(elements)
-        elem = elements[j]
-        val = CUDAnative.fma(pot(ξ, elem, yuk), x[j], val)
+        val = CUDAnative.fma(pot(ξ, elements[j], yuk), x[j], val)
     end
     dst[i] = val
     nothing

@@ -1,4 +1,3 @@
-# TODO
 struct NonlocalSystemMatrix{T} <: AbstractArray{T, 2}
     Ξ       ::PositionVector{T} # soa
     elements::TriangleVector{T} # aso
@@ -42,7 +41,6 @@ function LinearAlgebra.diag(A::NonlocalSystemMatrix{T}, k::Int = 0) where T
     [ σ .- diag(Kʸ); diag(V) ; σ ]
 end
 
-# TODO mul!/5
 @inline function LinearAlgebra.mul!(
     Y::AbstractArray{T, 1},
     A::NonlocalSystemMatrix{T},
@@ -55,7 +53,6 @@ end
     Array(_mul(A.Ξ, A.elements, CuArray(x), A.params))
 end
 
-# TODO merge into mul?
 function _mul(
     Ξ       ::PositionVector{T},
     elements::TriangleVector{T},
@@ -92,54 +89,77 @@ function _mul(
     ]
 end
 
-function _mul_ld_kernel!(
-    dst     ::CuDeviceVector{T},
-    Ξ       ::CuPositionVector{T},
-    elements::CuTriangleVector{T},
-    x       ::CuDeviceVector{T}
-) where T
-    i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
-    i > length(Ξ) && return
-
-    ξ = Ξ[i]
-    numelem = length(elements)
-    val12 = T(0)
-    val3  = T(0)
-    for j in 1:numelem
-        elem = elements[j]
-        ld = laplacepot_double(ξ, elem)
-
-        val12 = CUDAnative.fma(ld, x[j], val12)
-        val3  = CUDAnative.fma(ld, x[j + 2numelem], val3)
-    end
-    dst[i] = -val12
-    dst[i + numelem] = val12
-    dst[i + 2numelem] = -val3
-    nothing
+struct NonlocalSystemOutputs{T} <: AbstractArray{T, 1}
+    β      ::Vector{T}
 end
 
-function _mul_yd_kernel!(
-    dst     ::CuDeviceVector{T},
-    Ξ       ::CuPositionVector{T},
-    elements::CuTriangleVector{T},
-    x       ::CuDeviceVector{T},
-    pref    ::T,
-    yuk     ::T
+function NonlocalSystemOutputs(
+    A   ::NonlocalSystemMatrix{T},
+    umol::Vector{T},
+    qmol::Vector{T}
 ) where T
-    i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
-    i > length(Ξ) && return
+    εΩ   = A.params.εΩ
+    εΣ   = A.params.εΣ
+    ε∞   = A.params.ε∞
+    yuk  = yukawa(A.params)
+    Ṽ    = LaplacePotentialMatrix{SingleLayer}(A.Ξ, A.elements)
+    W    = LaplacePotentialMatrix{DoubleLayer}(A.Ξ, A.elements)
+    ṼʸmṼ = ReYukawaPotentialMatrix{SingleLayer}(A.Ξ, A.elements, yuk)
+    WʸmW = ReYukawaPotentialMatrix{DoubleLayer}(A.Ξ, A.elements, yuk)
 
-    ξ = Ξ[i]
-    numelem = length(elements)
-    val1 = T(0)
-    val2 = T(0)
-    for j in 1:numelem
-        elem = elements[j]
-        yd = regularyukawapot_double(ξ, elem, yuk)
-
-        val1 = CUDAnative.fma(yd, x[j], val1)
-        val2 = CUDAnative.fma(yd, x[j + 2numelem], val2)
-    end
-    dst[i] = pref * val2 - val1
-    nothing
+    NonlocalSystemOutputs(
+        W * umol .+ ((1 - εΩ/εΣ) .* (WʸmW * umol)) .- (T(2π) .* umol) .-
+        ((εΩ/ε∞) .* (Ṽ * qmol)) .+ ((εΩ * (1/εΣ - 1/ε∞)) .* (ṼʸmṼ * qmol))
+    )
 end
+
+@inline Base.size(v::NonlocalSystemOutputs{T}) where T = 3 .* Base.size(v.β)
+
+@inline function Base.getindex(v::NonlocalSystemOutputs{T}, i::Int) where T
+    @boundscheck checkbounds(v, i)
+    @inbounds i ∈ 1:size(v.β, 1) ? Base.getindex(v.β, i) : zero(T)
+end
+
+@inline Base.setindex(
+    v::NonlocalSystemOutputs{T},
+     ::Any,
+     ::Int
+) where T = error("setindex! not defined for ", typeof(v))
+
+struct NonlocalSystem{T}
+    model::Model{T, Triangle{T}}
+    A    ::NonlocalSystemMatrix{T}
+    b    ::NonlocalSystemOutputs{T}
+    umol ::Vector{T}
+    qmol ::Vector{T}
+end
+
+function NonlocalSystem(model::Model{T, Triangle{T}}) where T
+    cuΞ    = PositionVector([e.center for e in model.elements])
+    cuelms = TriangleVector(model.elements)
+
+    A    = NonlocalSystemMatrix(cuΞ, cuelms, model.params)
+    umol = model.params.εΩ .\   φmol(model, tolerance=_etol(T))
+    qmol = model.params.εΩ .\ ∂ₙφmol(model)
+    b    = NonlocalSystemOutputs(A, umol, qmol)
+
+    NonlocalSystem(model, A, b, umol, qmol)
+end
+
+function solve(sys::NonlocalSystem{T}) where T
+    numξ = length(sys.A.Ξ)
+    cauchy  = _solve_linear_system(sys.A, sys.b)
+    NonlocalBEMResult(
+        sys.model,
+        view(cauchy, 1:numξ),
+        view(cauchy, 1+numξ:2numξ),
+        view(cauchy, 1+2numξ:3numξ),
+        sys.umol,
+        sys.qmol
+    )
+end
+
+@inline solve(
+         ::Type{NonlocalES},
+    model::Model{T, Triangle{T}}
+) where T = solve(NonlocalSystem(model))

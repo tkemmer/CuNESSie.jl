@@ -1,4 +1,4 @@
-struct PositionVector{T} <: AbstractArray{T, 1}
+struct PositionVector{T} <: NoAccessArray{T, 1}
     dim::Int
     vec::CuVector{T}
 end
@@ -16,23 +16,12 @@ PositionVector(
 
 @inline Base.size(v::PositionVector{T}) where T = (v.dim,)
 
-@inline Base.getindex(
-    v::PositionVector{T},
-     ::Int
-) where T = error("getindex not defined for ", typeof(v))
-
-@inline Base.setindex!(
-    v::PositionVector{T},
-     ::Any,
-     ::Int
-) where T = error("setindex! not defined for ", typeof(v))
-
 @inline Adapt.adapt_storage(
     a::CUDAnative.Adaptor,
     v::PositionVector{T}
 ) where T = CuPositionVector(v.dim, Adapt.adapt_storage(a, v.vec))
 
-struct TriangleVector{T} <: AbstractArray{T, 1}
+struct TriangleVector{T} <: NoAccessArray{T, 1}
     dim::Int
     vec::CuVector{T}
 end
@@ -47,17 +36,6 @@ TriangleVector(
 )
 
 @inline Base.size(v::TriangleVector{T}) where T = (v.dim,)
-
-@inline Base.getindex(
-    v::TriangleVector{T},
-     ::Int
-) where T = error("getindex not defined for ", typeof(v))
-
-@inline Base.setindex!(
-    v::TriangleVector{T},
-     ::Any,
-     ::Int
-) where T = error("setindex! not defined for ", typeof(v))
 
 @inline Adapt.adapt_storage(
     a::CUDAnative.Adaptor,

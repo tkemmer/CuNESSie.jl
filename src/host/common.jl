@@ -7,7 +7,6 @@ const _etol_f32 = 3.45f-4
 @inline _etol(::Type{Float32}) = _etol_f32
 
 @inline _kcfg(n::Int) = _ -> (threads = 128, blocks = cld(n, 128))
-@inline _kcfg(A::PotentialMatrix{T}) where T = _kcfg(size(A, 1))
 
 abstract type ReadOnlyArray{T, N} <: AbstractArray{T, N} end
 abstract type NoAccessArray{T, N} <: AbstractArray{T, N} end

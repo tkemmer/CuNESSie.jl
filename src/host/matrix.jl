@@ -1,33 +1,12 @@
-abstract type PotentialMatrix{T} <: AbstractArray{T, 2} end
-
-@inline Base.getindex(
-    A::PotentialMatrix{T},
-     ::Int
-) where T = error("getindex not defined for", typeof(A))
-
-@inline Base.setindex!(
-    A::PotentialMatrix{T},
-     ::Any,
-     ::Int
-) where T = error("setindex! not defined for", typeof(A))
-
-@inline Base.show(
-    io::IO,
-      ::MIME"text/plain",
-    A ::PotentialMatrix{T}
-) where T = Base.show(io, A)
-
-
-@inline function Base.show(io::IO, A::PotentialMatrix{T}) where {T}
-    d = join(size(A), "×")
-    print(io, "$d ", typeof(A))
-end
+abstract type PotentialMatrix{T} <: NoAccessArray{T, 2} end
 
 @inline LinearAlgebra.mul!(
     Y::AbstractArray{T, 1},
     A::PotentialMatrix{T},
     x::AbstractArray{T, 1}
 ) where T = Y .= A * x
+
+@inline _kcfg(A::PotentialMatrix{T}) where T = _kcfg(size(A, 1))
 
 struct LaplacePotentialMatrix{T, L <: PotentialType} <: PotentialMatrix{T}
     Ξ       ::PositionVector{T}

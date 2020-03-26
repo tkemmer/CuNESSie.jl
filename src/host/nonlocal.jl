@@ -1,4 +1,4 @@
-struct NonlocalSystemMatrix{T} <: AbstractArray{T, 2}
+struct NonlocalSystemMatrix{T} <: NoAccessArray{T, 2}
     Ξ       ::PositionVector{T} # soa
     elements::TriangleVector{T} # aso
     params  ::Option{T}
@@ -14,23 +14,8 @@ end
 
 @inline Base.size(A::NonlocalSystemMatrix{T}) where T = (3 * length(A.Ξ), 3 * length(A.elements))
 
-@inline Base.getindex(
-    A::NonlocalSystemMatrix{T},
-     ::Int
-) where T = error("getindex not defined for ", typeof(A))
-
-@inline Base.setindex!(
-    A::NonlocalSystemMatrix{T},
-     ::Any,
-     ::Int
-) where T = error("setindex! not defined for ", typeof(A))
-
 @inline function Base.show(io::IO, ::MIME"text/plain", A::NonlocalSystemMatrix{T}) where T
     print(io, join(size(A), "×"), " ", typeof(A), "($(repr(A.params)))")
-end
-
-@inline function Base.show(io::IO, A::NonlocalSystemMatrix{T}) where T
-    print(io, typeof(A))
 end
 
 function LinearAlgebra.diag(A::NonlocalSystemMatrix{T}, k::Int = 0) where T
@@ -89,7 +74,7 @@ function _mul(
     ]
 end
 
-struct NonlocalSystemOutputs{T} <: AbstractArray{T, 1}
+struct NonlocalSystemOutputs{T} <: ReadOnlyArray{T, 1}
     β      ::Vector{T}
 end
 
@@ -119,12 +104,6 @@ end
     @boundscheck checkbounds(v, i)
     @inbounds i ∈ 1:size(v.β, 1) ? Base.getindex(v.β, i) : zero(T)
 end
-
-@inline Base.setindex(
-    v::NonlocalSystemOutputs{T},
-     ::Any,
-     ::Int
-) where T = error("setindex! not defined for ", typeof(v))
 
 struct NonlocalSystem{T}
     model::Model{T, Triangle{T}}

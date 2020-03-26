@@ -64,49 +64,32 @@ function _mul(
 ) where T
     numelem = length(elements)
     cfg = _kcfg(numelem)
+    εΩ  = params.εΩ
+    εΣ  = params.εΣ
+    ε∞  = params.ε∞
     yuk = yukawa(params)
 
+    V  = LaplacePotentialMatrix{SingleLayer}(Ξ, elements)
     Vʸ = ReYukawaPotentialMatrix{SingleLayer}(Ξ, elements, yuk)
 
-    ls = CuArray{T}(undef, 3numelem)
-    @cuda config=cfg _mul_ls_kernel!(ls, Ξ, elements, x, params.εΩ/params.ε∞)
+    u  = x[1:numelem]
+    q  = x[numelem+1:2numelem]
+    w  = x[2numelem+1:3numelem]
+
+    ls = V * q
+    ys = (εΩ * (1/ε∞ - 1/εΣ)) .* (Vʸ * q)
 
     ld = CuArray{T}(undef, 3numelem)
     @cuda config=cfg _mul_ld_kernel!(ld, Ξ, elements, x)
 
-    ys = (params.εΩ * (1/params.ε∞ - 1/params.εΣ)) .* (Vʸ * x[numelem+1:2numelem])
-
     yd = CuArray{T}(undef, numelem)
-    @cuda config=cfg _mul_yd_kernel!(yd, Ξ, elements, x, params.ε∞/params.εΣ, yuk)
+    @cuda config=cfg _mul_yd_kernel!(yd, Ξ, elements, x, ε∞/εΣ, yuk)
 
     [
-        T(2π) .* x[1:numelem] .+ ls[1:numelem] .+ ld[1:numelem] .+ ys .+ yd;
-        T(2π) .* x[1:numelem] .+ ls[numelem+1:2numelem] .+ ld[numelem+1:2numelem];
-        T(2π) .* x[2numelem+1:end] .+ ls[2numelem+1:end] .+ ld[2numelem+1:end]
+        T(2π) .* u .+ (εΩ/ε∞) .* ls .+ ld[1:numelem] .+ ys .+ yd;
+        T(2π) .* u .- ls .+ ld[numelem+1:2numelem];
+        T(2π) .* w .+ (εΩ/ε∞) .* ls .+ ld[2numelem+1:end]
     ]
-end
-
-function _mul_ls_kernel!(
-    dst     ::CuDeviceVector{T},
-    Ξ       ::CuPositionVector{T},
-    elements::CuTriangleVector{T},
-    x       ::CuDeviceVector{T},
-    pref    ::T
-) where T
-    i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
-    i > length(Ξ) && return
-
-    ξ = Ξ[i]
-    numelem = length(elements)
-    val = T(0)
-    for j in 1:numelem
-        elem = elements[j]
-        val = CUDAnative.fma(laplacepot_single(ξ, elem), x[j + numelem], val)
-    end
-    dst[i] = pref * val
-    dst[i + numelem] = -val
-    dst[i + 2numelem] = pref * val
-    nothing
 end
 
 function _mul_ld_kernel!(

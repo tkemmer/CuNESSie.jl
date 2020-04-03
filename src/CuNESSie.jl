@@ -7,6 +7,7 @@ using IterativeSolvers
 using LinearAlgebra
 using NESSie
 using NESSie: yukawa
+using NESSie.BEM: BEMResult, LocalBEMResult, NonlocalBEMResult
 using Preconditioners
 
 # device code

@@ -34,7 +34,7 @@ function _laplace_mul_kernel!(
     ξ = Ξ[i]
     val = T(0)
     for j in 1:length(elements)
-        val = CUDAnative.fma(pot(ξ, elements[j]), x[j], val)
+        val = CUDA.fma(pot(ξ, elements[j]), x[j], val)
     end
     dst[i] = val
     nothing
@@ -90,7 +90,7 @@ function _reyukawa_mul_kernel!(
     ξ = Ξ[i]
     val = T(0)
     for j in 1:length(elements)
-        val = CUDAnative.fma(pot(ξ, elements[j], yuk), x[j], val)
+        val = CUDA.fma(pot(ξ, elements[j], yuk), x[j], val)
     end
     dst[i] = val
     nothing

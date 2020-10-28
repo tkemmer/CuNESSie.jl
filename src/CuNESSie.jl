@@ -1,8 +1,7 @@
 module CuNESSie
 
 using Adapt
-using CuArrays
-using CUDAnative
+using CUDA
 using IterativeSolvers
 using LinearAlgebra
 using NESSie

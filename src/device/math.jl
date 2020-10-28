@@ -1,17 +1,17 @@
 @inline function _abs(x::T) where T
-    CUDAnative.abs(x)
+    CUDA.abs(x)
 end
 
 @inline function _asin(x::T) where T
-    CUDAnative.asin(x)
+    CUDA.asin(x)
 end
 
 @inline function _cathethus(hyp::T, cos_theta::T) where T
-    CUDAnative.sqrt(hyp * hyp * (1 - cos_theta * cos_theta))
+    CUDA.sqrt(hyp * hyp * (1 - cos_theta * cos_theta))
 end
 
 @inline function _clamp(x::T, lo::T, hi::T) where T
-    CUDAnative.max(lo, CUDAnative.min(hi, x))
+    CUDA.max(lo, CUDA.min(hi, x))
 end
 
 @inline function _cos(u::CuPosition{T}, unorm::T, v::CuPosition{T}, vnorm::T) where T
@@ -27,15 +27,15 @@ end
 end
 
 @inline function _dot(u::CuPosition{T}, v::CuPosition{T}) where T
-    CUDAnative.fma(u.x, v.x, CUDAnative.fma(u.y, v.y, u.z * v.z))
+    CUDA.fma(u.x, v.x, CUDA.fma(u.y, v.y, u.z * v.z))
 end
 
 @inline function _log(x::T) where T
-    CUDAnative.log(x)
+    CUDA.log(x)
 end
 
 @inline function _norm(v::CuPosition{T}) where T
-    CUDAnative.sqrt(_dot(v, v))
+    CUDA.sqrt(_dot(v, v))
 end
 
 @inline function _sign(x::T) where T
@@ -43,7 +43,7 @@ end
 end
 
 @inline function _sqrt(x::T) where T
-    CUDAnative.sqrt(x)
+    CUDA.sqrt(x)
 end
 
 @inline function _smul(v::CuPosition{T}, s::T) where T

@@ -18,8 +18,8 @@ function _mul_ld_kernel!(
     for j in 1:numelem
         ld = laplacepot_double(ξ, elements[j])
 
-        val12 = CUDAnative.fma(ld, x[j], val12)
-        val3  = CUDAnative.fma(ld, x[j + 2numelem], val3)
+        val12 = CUDA.fma(ld, x[j], val12)
+        val3  = CUDA.fma(ld, x[j + 2numelem], val3)
     end
     dst[i] = -val12
     dst[i + numelem] = val12
@@ -45,8 +45,8 @@ function _mul_yd_kernel!(
     for j in 1:numelem
         yd = regularyukawapot_double(ξ, elements[j], yuk)
 
-        val1 = CUDAnative.fma(yd, x[j], val1)
-        val2 = CUDAnative.fma(yd, x[j + 2numelem], val2)
+        val1 = CUDA.fma(yd, x[j], val1)
+        val2 = CUDA.fma(yd, x[j + 2numelem], val2)
     end
     dst[i] = pref * val2 - val1
     nothing

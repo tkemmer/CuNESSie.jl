@@ -1,5 +1,5 @@
 @inline function _degenerate(h::T, sinφ1::T, sinφ2::T) where T
-    CUDAnative.max(zero(h), h) < _etol(h) ||
+    CUDA.max(zero(h), h) < _etol(h) ||
     1 - _abs(sinφ1) < _etol(h) ||
     1 - _abs(sinφ2) < _etol(h) ||
     _abs(sinφ1 - sinφ2) < _etol(h)

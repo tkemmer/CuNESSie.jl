@@ -1,5 +1,4 @@
-using CuArrays
-using CUDAnative
+using CUDA
 using NESSie
 using ImplicitArrays
 using Test

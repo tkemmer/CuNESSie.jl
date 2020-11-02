@@ -15,6 +15,13 @@ Preconditioners = "af69fa37-3177-5a40-98ee-561f696e4fcd"
 
 [compat]
 julia = "1"
+Adapt = "1, 2"
+CUDAnative = "2.9, 3"
+CuArrays = "1.7, 2"
+ImplicitArrays = "0.2"
+IterativeSolvers = "0.8"
+NESSie = "1.1"
+Preconditioners = "0.3"
 
 [extras]
 ImplicitArrays = "2c62951c-9479-4435-88c8-614a84373d38"

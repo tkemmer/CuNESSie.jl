@@ -1,5 +1,5 @@
 # CUDA-accelerated Nonlocal Electrostatics
-[![](https://img.shields.io/github/license/tkemmer/CuNESSie.jl?style=for-the-badge)](https://github.com/tkemmer/ImplicitArrays.jl/blob/master/LICENSE)
+[![](https://img.shields.io/github/license/tkemmer/CuNESSie.jl?style=for-the-badge)](https://github.com/tkemmer/CuNESSie.jl/blob/master/LICENSE)
 
 `CuNESSie.jl` is an extension to the [`NESSie.jl`](https://github.com/tkemmer/NESSie.jl) package, providing CUDA-accelerated drop-in replacements for the package's numerical solvers and post-processors.
 

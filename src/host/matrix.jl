@@ -44,13 +44,15 @@ function _diag(A::LaplacePotentialMatrix{T}, k::Int, pot::F) where {T, F <: Func
     @assert size(A, 1) == size(A, 2) "diag requires a square matrix"
     k != 0 && error("diag not defined for k != 0 on ", typeof(A))
     dst = CuArray{T}(undef, size(A, 1))
-    @cuda config=_kcfg(A) pot(dst, A.Ξ, A.elements)
+    cfg = _kcfg(A)
+    @cuda threads=cfg.threads blocks=cfg.blocks pot(dst, A.Ξ, A.elements)
     Array(dst)
 end
 
 function _mul(A::LaplacePotentialMatrix{T}, x::CuArray{T, 1}, pot::F) where {T, F <: Function}
     dst = CuArray{T}(undef, size(A, 1))
-    @cuda config=_kcfg(A) pot(dst, A.Ξ, A.elements, x)
+    cfg = _kcfg(A)
+    @cuda threads=cfg.threads blocks=cfg.blocks pot(dst, A.Ξ, A.elements, x)
     dst
 end
 
@@ -98,7 +100,8 @@ function _diag(A::ReYukawaPotentialMatrix{T}, k::Int, pot::F) where {T, F <: Fun
     @assert size(A, 1) == size(A, 2) "diag requires a square matrix"
     k != 0 && error("diag not defined for k != 0 on ", typeof(A))
     dst = CuArray{T}(undef, size(A, 1))
-    @cuda config=_kcfg(A) pot(dst, A.Ξ, A.elements, A.yuk)
+    cfg = _kcfg(A)
+    @cuda threads=cfg.threads blocks=cfg.blocks pot(dst, A.Ξ, A.elements, A.yuk)
     Array(dst)
 end
 
@@ -108,7 +111,8 @@ function _mul(
     pot::F
 ) where {T, F <: Function}
     dst = CuArray{T}(undef, size(A, 1))
-    @cuda config=_kcfg(A) pot(dst, A.Ξ, A.elements, x, A.yuk)
+    cfg = _kcfg(A)
+    @cuda threads=cfg.threads blocks=cfg.blocks pot(dst, A.Ξ, A.elements, x, A.yuk)
     dst
 end
 

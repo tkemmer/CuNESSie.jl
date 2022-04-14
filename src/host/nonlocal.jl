@@ -62,10 +62,10 @@ function _mul(
     ys = (εΩ * (1/ε∞ - 1/εΣ)) .* (Vʸ * q)
 
     ld = CuArray{T}(undef, 3numelem)
-    @cuda config=cfg _mul_ld_kernel!(ld, Ξ, elements, x)
+    @cuda threads=cfg.threads blocks=cfg.blocks _mul_ld_kernel!(ld, Ξ, elements, x)
 
     yd = CuArray{T}(undef, numelem)
-    @cuda config=cfg _mul_yd_kernel!(yd, Ξ, elements, x, ε∞/εΣ, yuk)
+    @cuda threads=cfg.threads blocks=cfg.blocks _mul_yd_kernel!(yd, Ξ, elements, x, ε∞/εΣ, yuk)
 
     [
         T(2π) .* u .+ (εΩ/ε∞) .* ls .+ ld[1:numelem] .+ ys .+ yd;

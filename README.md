@@ -44,3 +44,10 @@ following command in the `Pkg` shell:
 ```sh
 pkg> test CuNESSie
 ```
+
+## Citing
+If you use `CuNESSie.jl` in your research, please cite the following publication:
+> Kemmer, T (2021). Space-efficient and exact system representations for the nonlocal protein
+> electrostatics problem. Ph. D. thesis, Johannes Gutenberg University Mainz. Mainz, Germany.
+
+Citation items for BibTeX can be found in [CITATION.bib](https://github.com/tkemmer/CuNESSie.jl/blob/master/CITATION.bib).

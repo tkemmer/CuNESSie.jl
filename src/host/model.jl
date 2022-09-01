@@ -16,7 +16,7 @@ PositionVector(
 
 @inline Base.size(v::PositionVector{T}) where T = (v.dim,)
 
-@inline Adapt.adapt_storage(
+@inline Adapt.adapt_structure(
     a::CUDA.Adaptor,
     v::PositionVector{T}
 ) where T = CuPositionVector(v.dim, Adapt.adapt_storage(a, v.vec))
@@ -37,7 +37,7 @@ TriangleVector(
 
 @inline Base.size(v::TriangleVector{T}) where T = (v.dim,)
 
-@inline Adapt.adapt_storage(
+@inline Adapt.adapt_structure(
     a::CUDA.Adaptor,
     v::TriangleVector{T}
 ) where T = CuTriangleVector(v.dim, Adapt.adapt_storage(a, v.vec))

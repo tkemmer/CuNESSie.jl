@@ -26,14 +26,22 @@ struct TriangleVector{T} <: NoAccessArray{T, 1}
     vec::CuVector{T}
 end
 
-TriangleVector(
+function TriangleVector(
     elements::Vector{Triangle{T}}
-) where T = TriangleVector(
-    length(elements),
-    CuArray(NESSie.unpack(
-        [[e.v1; e.v2; e.v3; e.normal; e.distorig; e.area] for e in elements]
-    ))
-)
+) where T
+    vec = Vector{T}(undef, 14 * length(elements))
+    for i in eachindex(elements)
+        elm = elements[i]
+        i = 14 * (i - 1)
+        view(vec,  i+1:i+3)  .= elm.v1
+        view(vec,  i+4:i+6)  .= elm.v2
+        view(vec,  i+7:i+9)  .= elm.v3
+        view(vec, i+10:i+12) .= elm.normal
+        vec[i+13] = elm.distorig
+        vec[i+14] = elm.area
+    end
+    TriangleVector(length(elements), CuArray(vec))
+end
 
 @inline Base.size(v::TriangleVector{T}) where T = (v.dim,)
 

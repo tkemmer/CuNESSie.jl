@@ -54,9 +54,9 @@ function _mul(
     V  = LaplacePotentialMatrix{SingleLayer}(Ξ, elements)
     Vʸ = ReYukawaPotentialMatrix{SingleLayer}(Ξ, elements, yuk)
 
-    u  = x[1:numelem]
-    q  = x[numelem+1:2numelem]
-    w  = x[2numelem+1:3numelem]
+    u  = view(x, 1:numelem)
+    q  = view(x, numelem+1:2numelem)
+    w  = view(x, 2numelem+1:3numelem)
 
     ls = V * q
     ys = (εΩ * (1/ε∞ - 1/εΣ)) .* (Vʸ * q)
@@ -67,10 +67,10 @@ function _mul(
     yd = CuArray{T}(undef, numelem)
     @cuda threads=cfg.threads blocks=cfg.blocks _mul_yd_kernel!(yd, Ξ, elements, x, ε∞/εΣ, yuk)
 
-    [
-        T(2π) .* u .+ (εΩ/ε∞) .* ls .+ ld[1:numelem] .+ ys .+ yd;
-        T(2π) .* u .- ls .+ ld[numelem+1:2numelem];
-        T(2π) .* w .+ (εΩ/ε∞) .* ls .+ ld[2numelem+1:end]
+    [ # TODO reduce allocs
+        T(2π) .* u .+ (εΩ/ε∞) .* ls .+ view(ld, 1:numelem) .+ ys .+ yd;
+        T(2π) .* u .- ls .+ view(ld, numelem+1:2numelem);
+        T(2π) .* w .+ (εΩ/ε∞) .* ls .+ view(ld, 2numelem+1:3numelem)
     ]
 end
 

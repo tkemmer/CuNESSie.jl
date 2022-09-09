@@ -3,6 +3,7 @@ Manifest.toml
 *.jl.*.cov
 *.jl.cov
 *.jl.mem
+*.nsys-rep
 *.swp
 /.vscode/
 /docs/build/

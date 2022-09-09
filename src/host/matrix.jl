@@ -6,17 +6,29 @@ abstract type PotentialMatrix{T} <: NoAccessArray{T, 2} end
     x::AbstractArray{T, 1}
 ) where T = Y .= A * x
 
+# TODO move into matrix type
 @inline _kcfg(A::PotentialMatrix{T}) where T = _kcfg(size(A, 1))
 
 struct LaplacePotentialMatrix{T, L <: PotentialType} <: PotentialMatrix{T}
     Ξ       ::PositionVector{T}
     elements::TriangleVector{T}
+    cuxbuf   ::CuVector{T}
+    cuybuf   ::CuVector{T}
+    xbuf     ::Vector{T}
+    ybuf     ::Vector{T}
 end
 
 @inline LaplacePotentialMatrix{L}(
     Ξ       ::PositionVector{T},
     elements::TriangleVector{T}
-) where {T, L <: PotentialType} = LaplacePotentialMatrix{T, L}(Ξ, elements)
+) where {T, L <: PotentialType} = LaplacePotentialMatrix{T, L}(
+    Ξ, 
+    elements, 
+    CuVector{T}(undef, length(Ξ)), 
+    CuVector{T}(undef, length(Ξ)), 
+    Mem.pin(Vector{T}(undef, length(Ξ))),
+    Mem.pin(Vector{T}(undef, length(Ξ)))
+)
 
 @inline Base.size(A::LaplacePotentialMatrix{T}) where T = (length(A.Ξ), length(A.elements))
 
@@ -49,18 +61,18 @@ function _diag(A::LaplacePotentialMatrix{T}, k::Int, pot::F) where {T, F <: Func
     Array(dst)
 end
 
-function _mul(A::LaplacePotentialMatrix{T}, x::CuArray{T, 1}, pot::F) where {T, F <: Function}
-    dst = CuArray{T}(undef, size(A, 1))
-    cfg = _kcfg(A)
-    @cuda threads=cfg.threads blocks=cfg.blocks pot(dst, A.Ξ, A.elements, x)
-    dst
-end
-
-@inline _mul(
+function _mul(
     A  ::LaplacePotentialMatrix{T},
     x  ::AbstractArray{T, 1},
     pot::F
-) where {T, F <: Function} = Array(_mul(A, CuArray(x), pot))
+) where {T, F <: Function}
+    A.xbuf .= x
+    CUDA.copyto!(A.cuxbuf, A.xbuf)
+    cfg = _kcfg(A)
+    @cuda threads=cfg.threads blocks=cfg.blocks pot(A.cuybuf, A.Ξ, A.elements, A.cuxbuf)
+    CUDA.copyto!(A.ybuf, A.cuybuf)
+    A.ybuf
+end
 
 struct ReYukawaPotentialMatrix{T, L <: PotentialType} <: PotentialMatrix{T}
     Ξ       ::PositionVector{T}

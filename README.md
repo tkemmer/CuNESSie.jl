@@ -46,8 +46,11 @@ pkg> test CuNESSie
 ```
 
 ## Citing
-If you use `CuNESSie.jl` in your research, please cite the following publication:
-> Kemmer, T (2021). Space-efficient and exact system representations for the nonlocal protein
-> electrostatics problem. Ph. D. thesis, Johannes Gutenberg University Mainz. Mainz, Germany.
+If you use `CuNESSie.jl` in your research, please cite the following publications:
+> T. Kemmer, S. Hack, B. Schmidt, A. Hildebrandt. CUDA-accelerated protein electrostatics in linear
+> space. Journal of Computational Science 70 (2023) 102022.
+
+> T. Kemmer. Space-efficient and exact system representations for the nonlocal protein electrostatics
+> problem. Ph. D. thesis (2021), Johannes Gutenberg University Mainz. Mainz, Germany.
 
 Citation items for BibTeX can be found in [CITATION.bib](https://github.com/tkemmer/CuNESSie.jl/blob/master/CITATION.bib).

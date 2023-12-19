@@ -13,7 +13,7 @@ NESSie = "f00e83c4-bd01-11e9-272c-ff1b96fb444d"
 Preconditioners = "af69fa37-3177-5a40-98ee-561f696e4fcd"
 
 [compat]
-Adapt = "3.3"
+Adapt = "3.3, 4"
 CUDA = "5.1"
 ImplicitArrays = "0.2"
 IterativeSolvers = "0.8, 0.9"

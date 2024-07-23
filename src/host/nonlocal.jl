@@ -98,11 +98,11 @@ function NonlocalSystemOutputs(
     )
 end
 
-@inline Base.size(v::NonlocalSystemOutputs{T}) where T = 3 .* Base.size(v.β)
+@inline Base.size(v::NonlocalSystemOutputs{T}) where T = 3 .* size(v.β)
 
 @inline function Base.getindex(v::NonlocalSystemOutputs{T}, i::Int) where T
     @boundscheck checkbounds(v, i)
-    @inbounds i ∈ 1:size(v.β, 1) ? Base.getindex(v.β, i) : zero(T)
+    @inbounds i ∈ 1:size(v.β, 1) ? getindex(v.β, i) : zero(T)
 end
 
 struct NonlocalSystem{T}

@@ -19,7 +19,7 @@ abstract type NoAccessArray{T, N} <: AbstractArray{T, N} end
      ::Int
 ) = error("setindex! not defined for ", typeof(A))
 
-@inline Base.show(io::IO, ::MIME"text/plain", A ::NoAccessArray) = Base.show(io, A)
+@inline Base.show(io::IO, ::MIME"text/plain", A ::NoAccessArray) = show(io, A)
 @inline Base.show(io::IO, A::NoAccessArray) = print(io, join(size(A), "×"), " ", typeof(A))
 
 function _solve_linear_system(A::AbstractArray{T, 2}, b::AbstractArray{T, 1}) where T

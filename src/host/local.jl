@@ -25,7 +25,7 @@ end
     params::Option{T}
 ) where T = LocalSystemMatrix(K, (1 + params.εΩ / params.εΣ) * T(2π), params.εΩ / params.εΣ - 1)
 
-@inline Base.size(A::LocalSystemMatrix{T}) where T = Base.size(A.K)
+@inline Base.size(A::LocalSystemMatrix{T}) where T = size(A.K)
 
 @inline Base.:*(
     A::LocalSystemMatrix{T},

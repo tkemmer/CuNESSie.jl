@@ -18,7 +18,7 @@
         eidx    ::Int
     ) where T
         elem = elements[eidx]
-        for ξidx in 1:length(Ξ)
+        for ξidx in eachindex(Ξ)
             dst[ξidx] = laplacepot_single(Ξ[ξidx], elem)
         end
         nothing
@@ -31,7 +31,7 @@
         eidx    ::Int
     ) where T
         elem = elements[eidx]
-        for ξidx in 1:length(Ξ)
+        for ξidx in eachindex(Ξ)
             dst[ξidx] = laplacepot_double(Ξ[ξidx], elem)
         end
         nothing

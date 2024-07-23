@@ -143,7 +143,7 @@
             yuk      ::T
         ) where T
             elem = elements[eidx]
-            for ξidx in 1:length(Ξ)
+            for ξidx in eachindex(Ξ)
                 dst[ξidx] = regularyukawapot_single(Ξ[ξidx], elem, yuk)
             end
             nothing
@@ -190,7 +190,7 @@
             yuk      ::T
         ) where T
             elem = elements[eidx]
-            for ξidx in 1:length(Ξ)
+            for ξidx in eachindex(Ξ)
                 dst[ξidx] = regularyukawapot_double(Ξ[ξidx], elem, yuk)
             end
             nothing

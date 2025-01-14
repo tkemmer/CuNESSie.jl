@@ -5,7 +5,7 @@
 
 
 ## Installation
-This package version requires Julia 1.8 or above. In the Julia shell, switch to the
+In the Julia shell, switch to the
 `Pkg` shell by pressing `]` and enter the following command:
 
 ```sh

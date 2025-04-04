@@ -1,4 +1,4 @@
-@testitem "Laplace potentials" begin
+@testitem "Laplace potentials" tags=[:device] begin
     using CUDA
     using NESSie
 

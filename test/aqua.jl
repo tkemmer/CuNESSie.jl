@@ -8,7 +8,6 @@
     end
 
     Aqua.test_all(CuNESSie;
-        ambiguities=false,
-        persistent_tasks=false # requires NESSie to be registered
+        ambiguities=false
     )
 end

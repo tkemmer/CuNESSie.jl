@@ -1,4 +1,4 @@
-@testitem "Yukawa potentials" begin
+@testitem "Yukawa potentials" tags=[:device] begin
     using CUDA
     using NESSie
 

@@ -1,4 +1,4 @@
-@testitem "Math utilities" begin
+@testitem "Math utilities" tags=[:device] begin
     using CUDA
 
     using CuNESSie:

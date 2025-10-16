@@ -1,8 +1,8 @@
 name = "CuNESSie"
 uuid = "0d043cba-454f-40cc-8503-cb153d0e1409"
 desc = "CUDA-accelerated Nonlocal Electrostatics in Structured Solvents"
-authors = ["Thomas Kemmer <thomas@binaryden.de>"]
 version = "0.4.0"
+authors = ["Thomas Kemmer <thomas@binaryden.de>"]
 
 [deps]
 Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
@@ -19,15 +19,15 @@ CUDA = "5.8"
 IterativeSolvers = "0.8, 0.9"
 LinearAlgebra = "1.10"
 NESSie = "1.4"
+ParallelTestRunner = "2.0.1"
 Preconditioners = "0.6"
 Test = "1.10"
-TestItemRunner = "1"
 julia = "1.10"
 
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
+ParallelTestRunner = "d3525ed8-44d0-4b2c-a655-542cee43accc"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-TestItemRunner = "f8b46487-2199-4994-9208-9a1283c18c0a"
 
 [targets]
-test = ["Aqua", "Test", "TestItemRunner"]
+test = ["Aqua", "ParallelTestRunner", "Test"]

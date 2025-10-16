@@ -1,9 +1,15 @@
-using TestItemRunner
-using CUDA
+using ParallelTestRunner
+import CuNESSie
+import CUDA
 
-if CUDA.functional()
-    @run_package_tests verbose=true
-else
-    @warn "Failed to initialize CUDA. Skipping device tests..."
-    @run_package_tests verbose=true filter=ti->!(:device in ti.tags )
+const init_code = quote
+    using CuNESSie
 end
+
+testsuite = find_tests(pwd())
+if !CUDA.functional()
+    @warn "Failed to initialize CUDA. Skipping device tests..."
+    testsuite = Dict(filter(p -> !startswith(p.first, "device/"), pairs(testsuite)))
+end
+
+runtests(CuNESSie, ["--verbose", ARGS...]; init_code, testsuite)

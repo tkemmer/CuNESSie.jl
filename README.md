@@ -9,7 +9,6 @@ This package version requires Julia 1.8 or above. In the Julia shell, switch to 
 `Pkg` shell by pressing `]` and enter the following command:
 
 ```sh
-pkg> add https://github.com/tkemmer/NESSie.jl
 pkg> add https://github.com/tkemmer/CuNESSie.jl
 ```
 

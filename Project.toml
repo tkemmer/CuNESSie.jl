@@ -15,7 +15,7 @@ Preconditioners = "af69fa37-3177-5a40-98ee-561f696e4fcd"
 [compat]
 Adapt = "3.3, 4"
 Aqua = "0.8"
-CUDA = "5.1"
+CUDA = "5.1, 6.0"
 IterativeSolvers = "0.8, 0.9"
 LinearAlgebra = "1.8"
 NESSie = "1.3"

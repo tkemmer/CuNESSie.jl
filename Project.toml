@@ -12,6 +12,12 @@ LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 NESSie = "f00e83c4-bd01-11e9-272c-ff1b96fb444d"
 Preconditioners = "af69fa37-3177-5a40-98ee-561f696e4fcd"
 
+[weakdeps]
+SciMLBase = "0bca4576-84f4-4d90-8ffe-ffa030f20462"
+
+[extensions]
+CuNESSieSciMLBaseExt = "SciMLBase"
+
 [compat]
 Adapt = "4"
 Aqua = "0.8.14"
@@ -22,6 +28,7 @@ NESSie = "1.4"
 ParallelTestRunner = "2.0.1"
 Preconditioners = "0.6"
 Test = "1.10"
+SciMLBase = "3.15"
 julia = "1.10"
 
 [extras]
